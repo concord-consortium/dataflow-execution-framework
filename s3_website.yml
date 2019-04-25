@@ -1,11 +1,9 @@
-s3_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>npm audit fi
-s3_secret: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 s3_bucket: models-resources
 s3_key_prefix: dataflow-execution-framework
 s3_endpoint: us-east-1
 gzip: true
 
-cloudfront_distribution_id: E1YPVV3YLYS4J7
+cloudfront_distribution_id: E21T3R93XGIC3E
 cloudfront_invalidate_root: true
 cloudfront_wildcard_invalidation: true
 
