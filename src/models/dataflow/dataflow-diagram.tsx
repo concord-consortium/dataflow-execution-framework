@@ -18,9 +18,9 @@ interface Block {
   outputCount: number;
   inputType: IOType;
   outputType: IOType;
+  value: number | string;
   view: Point;
   params?: Params;
-  value?: number | string;
 }
 
 export enum SensorBlockType { // rename to InputBlockType?
@@ -88,11 +88,11 @@ export class DataflowBlock implements Block {
     "<": (a: number, b: number): number => a < b ? 1 : 0,
     ">=": (a: number, b: number): number => a >= b ? 1 : 0,
     "<=": (a: number, b: number): number => a <= b ? 1 : 0,
-    "AND": (a: number, b: number): number => a && b,
-    "OR": (a: number, b: number): number => a || b,
-    "NOT": (a: number, b: number): number => a !== b ? 1 : 0,
+    "AND": (a: number, b: number): number => a && b ? 1 : 0,
+    "OR": (a: number, b: number): number => a || b ? 1 : 0,
+    "NOT": (a: number, b: number): number => a ? 0 : 1,
     "NAND": (a: number, b: number): number => !(a && b) ? 1 : 0,
-    "XOR": (a: number, b: number): number =>  !(a || b) ? 1 : 0,
+    "XOR": (a: number, b: number): number =>  !(a && b) && (a || b) ? 1 : 0,
   };
 
   constructor(
@@ -105,9 +105,9 @@ export class DataflowBlock implements Block {
     public outputCount: number,
     public inputType: IOType,
     public outputType: IOType,
-    public view: Point,
-    public params?: Params,
-    public value?: number | string
+    public value: number | string,
+    public view: Point = { x: 1, y: 1 },
+    public params?: Params
   ) {
   }
 
@@ -146,7 +146,11 @@ export class DataflowBlock implements Block {
         }
         const operator = this.value ? this.value : "+";
         // TODO: allow calc to take more than the first two values
-        val = this.calc[operator](values[0], values[1]);
+        if (this.calc[operator]) {
+          val = this.calc[operator](values[0], values[1]);
+        } else {
+          val = NaN;
+        }
         return val;
       } else return 0;
     }

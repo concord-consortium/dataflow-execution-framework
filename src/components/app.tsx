@@ -21,22 +21,21 @@ export class AppComponent extends BaseComponent<IProps, IState> {
   public render() {
     const { ui } = this.stores;
     const a = new DataflowBlock("sensor1", "a",
-      SensorBlockType.Oxygen, "things", [1], 1, 1, IOType.number, IOType.number, { x: 1, y: 1 }, undefined, 10);
+      SensorBlockType.Oxygen, "things", [1], 1, 1, IOType.number, IOType.number, 10);
     const b = new DataflowBlock("sensor2", "b",
-      SensorBlockType.Oxygen, "things2", [1], 1, 1, IOType.number, IOType.number, { x: 2, y: 2 }, undefined, 15);
+      SensorBlockType.Oxygen, "things2", [1], 1, 1, IOType.number, IOType.number, 15);
     const c = new DataflowBlock("operator1", "c",
       LogicBlockType.Operator, "logic",
-      [0, 1], 2, 1, IOType.number, IOType.number, { x: 3, y: 3 }, undefined, "+");
+      [0, 1], 2, 1, IOType.number, IOType.number, "+");
     const d = new DataflowBlock("operator2", "d",
       LogicBlockType.Operator, "logic",
-      [0, 1], 2, 1, IOType.number, IOType.number, { x: 4, y: 4 }, undefined, "*");
+      [0, 1], 2, 1, IOType.number, IOType.number, "*");
     const e = new DataflowBlock("operator3", "e",
       LogicBlockType.Comparator, "logic",
-      [0, 1], 2, 1, IOType.number, IOType.number, { x: 5, y: 5 }, undefined, ">");
+      [0, 1], 2, 1, IOType.number, IOType.number, ">");
     const f = new DataflowBlock("operator4", "f",
       LogicBlockType.LogicOperator, "logic",
-      [0, 1], 2, 1, IOType.number, IOType.number, { x: 6, y: 6 }, undefined, "AND");
-
+      [0, 1], 2, 1, IOType.number, IOType.number, "AND");
     const diagram = new DataflowDiagram("test", "test", [a, b, c, d, e, f], 1);
     return (
       <div className="app">
