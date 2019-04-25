@@ -9,7 +9,7 @@ interface Diagram {
 }
 
 interface Block {
-  id: number;
+  id: string;
   name: string;
   blockType: SensorBlockType | OutputBlockType | LogicBlockType;
   units: string;
@@ -47,10 +47,7 @@ export enum LogicBlockType {
   Timer,
   Operator,
   Comparator,
-  LogicOperator,
-  AbsValue,
-  MovingAverage,
-  ExpMovingAverage
+  LogicOperator
 }
 export enum IOType { bool, number, image } // bool, number, image
 
@@ -99,7 +96,7 @@ export class DataflowBlock implements Block {
   };
 
   constructor(
-    public id: number,
+    public id: string,
     public name: string,
     public blockType: SensorBlockType | OutputBlockType | LogicBlockType,
     public units: string,
