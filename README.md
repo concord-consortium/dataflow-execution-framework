@@ -28,20 +28,6 @@ Other branches are deployed to http://dataflow-execution-framework.concord.org/b
 
 You can view the status of all the branch deploys [here](https://travis-ci.com/concord-consortium/dataflow-execution-framework/branches).
 
-To deploy a production release:
-
-1. Increment version number in package.json
-2. Create new entry in CHANGELOG.md
-3. Run `git log --pretty=oneline --reverse <last release tag>...HEAD | grep '#' | grep -v Merge` and add contents (after edits if needed to CHANGELOG.md)
-4. Run `npm run build`
-5. Copy asset size markdown table from previous release and change sizes to match new sizes in `dist`
-6. Create `release-<version>` branch and commit changes, push to GitHub, create PR and merge
-7. Checkout master and pull
-8. Checkout production
-9. Run `git merge master --no-ff`
-10. Push production to GitHub
-11. Use https://github.com/concord-consortium/dataflow-execution-framework/releases to create a new release tag
-
 ### Testing
 
 Run `npm test` to run jest tests. Run `npm run test:full` to run jest and Cypress tests.
@@ -66,6 +52,6 @@ Inside of your `package.json` file:
 
 ## License
 
-Starter Projects are Copyright 2018 (c) by the Concord Consortium and is distributed under the [MIT license](http://www.opensource.org/licenses/MIT).
+This project is Copyright 2019 (c) by the Concord Consortium and is distributed under the [MIT license](http://www.opensource.org/licenses/MIT).
 
 See license.md for the complete license text.
