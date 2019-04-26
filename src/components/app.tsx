@@ -1,14 +1,15 @@
 import { inject, observer } from "mobx-react";
 import * as React from "react";
 import { BaseComponent, IBaseProps } from "./base";
-import { Text } from "./text";
 import {
   DataflowDiagram,
-  DataflowBlock,
-  SensorBlockType,
-  IOType,
-  LogicBlockType
+  DataflowBlock
 } from "../models/dataflow/dataflow-diagram";
+import {
+  SensorBlockType,
+  LogicBlockType,
+  IOType
+} from "../models/dataflow/dataflow-types";
 import "./app.sass";
 
 interface IProps extends IBaseProps {}

@@ -1,4 +1,9 @@
-import { DataflowBlock, IOType, SensorBlockType, LogicBlockType, DataflowDiagram } from "./dataflow-diagram";
+import { DataflowBlock, DataflowDiagram } from "./dataflow-diagram";
+import {
+  SensorBlockType,
+  LogicBlockType,
+  IOType
+} from "./dataflow-types";
 
 describe("Dataflow Block", () => {
   const a = new DataflowBlock("sensor1", "a",
