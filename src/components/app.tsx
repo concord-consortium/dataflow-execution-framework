@@ -15,7 +15,7 @@ import "./app.sass";
 
 interface IProps extends IBaseProps {}
 interface IState {
-  currentParsedData: DataflowDiagram;
+  currentDiagram: DataflowDiagram;
 }
 
 @inject("stores")
@@ -24,37 +24,42 @@ export class AppComponent extends BaseComponent<IProps, IState> {
   constructor(props: IProps) {
     super(props);
     this.state = {
-      currentParsedData: DataflowDiagram.parseDiagram(sample)
+      currentDiagram: DataflowDiagram.parseDiagram(sample)
     };
   }
   public render() {
-    const { currentParsedData } = this.state;
+    const { currentDiagram } = this.state;
     // test data
-    const a2 = DataflowBlock.create(currentParsedData.blocks[0]);
-    const b2 = DataflowBlock.create(currentParsedData.blocks[1]);
-    const c2 = DataflowBlock.create(currentParsedData.blocks[2]);
-    const d2 = DataflowBlock.create(currentParsedData.blocks[3]);
-    const e2 = DataflowBlock.create(currentParsedData.blocks[4]);
-    const f2 = DataflowBlock.create(currentParsedData.blocks[5]);
+    const blocks: DataflowBlock[] = [];
+    const inputs: DataflowBlock[] = [];
+    const logic: DataflowBlock[] = [];
+    const outputs: DataflowBlock[] = [];
+    for (const b of currentDiagram.blocks) {
+      const dfBlock = DataflowBlock.create(b);
+      blocks.push(dfBlock);
+      if (dfBlock.isSensor()) inputs.push(dfBlock);
+      if (dfBlock.isOutput()) outputs.push(dfBlock);
+      if (dfBlock.isLogic()) logic.push(dfBlock);
+    }
 
     return (
       <div className="app">
         <div>
           <div>Enter Dataflow2 JSON string:</div>
-          <div><textarea defaultValue={JSON.stringify(currentParsedData)} id="sourceData" cols={120} rows={20} /></div>
+          <div><textarea defaultValue={JSON.stringify(currentDiagram)} id="sourceData" cols={120} rows={20} /></div>
           <div><input type="submit" value="submit" onClick={this.updateDiagram} /></div>
         </div>
         <hr />
-        <div><span className="infoLabel">Parsed Blocks: </span>A = {a2.value}, B = {b2.value}</div>
-        <div><span className="infoLabel">Sum A + B: </span>{c2.currentValue(currentParsedData)}</div>
-        <div><span className="infoLabel">Multiply A * B: </span>{d2.currentValue(currentParsedData)}</div>
-        <div><span className="infoLabel">Compare A > B: </span>{e2.currentValue(currentParsedData)}</div>
-        <div><span className="infoLabel">Logic A AND B: </span>{f2.currentValue(currentParsedData)}</div>
+        <div><span className="infoLabel">Parsed Blocks: </span>A = {inputs[0].value}, B = {inputs[1].value}</div>
+        <div><span className="infoLabel">Sum A + B: </span>{logic[0].currentValue(currentDiagram)}</div>
+        <div><span className="infoLabel">Multiply A * B: </span>{logic[1].currentValue(currentDiagram)}</div>
+        <div><span className="infoLabel">Compare A > B: </span>{logic[2].currentValue(currentDiagram)}</div>
+        <div><span className="infoLabel">Logic A AND B: </span>{logic[3].currentValue(currentDiagram)}</div>
       </div>
     );
   }
   private updateDiagram = () => {
     const d = document.getElementById("sourceData") as HTMLInputElement;
-    this.setState({ currentParsedData: DataflowDiagram.parseDiagram(d.value) });
+    this.setState({ currentDiagram: DataflowDiagram.parseDiagram(d.value) });
   }
 }
