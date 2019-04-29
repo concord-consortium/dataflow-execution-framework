@@ -10,42 +10,51 @@ import {
   LogicBlockType,
   IOType
 } from "../models/dataflow/dataflow-types";
+import { sample } from "../data/sample";
 import "./app.sass";
 
 interface IProps extends IBaseProps {}
-interface IState {}
+interface IState {
+  currentParsedData: DataflowDiagram;
+}
 
 @inject("stores")
 @observer
 export class AppComponent extends BaseComponent<IProps, IState> {
-
+  constructor(props: IProps) {
+    super(props);
+    this.state = {
+      currentParsedData: DataflowDiagram.parseDiagram(sample)
+    };
+  }
   public render() {
-    const { ui } = this.stores;
-    const a = new DataflowBlock("sensor1", "a",
-      SensorBlockType.Oxygen, "things", [1], 1, 1, IOType.number, IOType.number, 10);
-    const b = new DataflowBlock("sensor2", "b",
-      SensorBlockType.Oxygen, "things2", [1], 1, 1, IOType.number, IOType.number, 15);
-    const c = new DataflowBlock("operator1", "c",
-      LogicBlockType.Operator, "logic",
-      [0, 1], 2, 1, IOType.number, IOType.number, "+");
-    const d = new DataflowBlock("operator2", "d",
-      LogicBlockType.Operator, "logic",
-      [0, 1], 2, 1, IOType.number, IOType.number, "*");
-    const e = new DataflowBlock("operator3", "e",
-      LogicBlockType.Comparator, "logic",
-      [0, 1], 2, 1, IOType.number, IOType.number, ">");
-    const f = new DataflowBlock("operator4", "f",
-      LogicBlockType.LogicOperator, "logic",
-      [0, 1], 2, 1, IOType.number, IOType.number, "AND");
-    const diagram = new DataflowDiagram("test", "test", [a, b, c, d, e, f], 1);
+    const { currentParsedData } = this.state;
+    // test data
+    const a2 = DataflowBlock.create(currentParsedData.blocks[0]);
+    const b2 = DataflowBlock.create(currentParsedData.blocks[1]);
+    const c2 = DataflowBlock.create(currentParsedData.blocks[2]);
+    const d2 = DataflowBlock.create(currentParsedData.blocks[3]);
+    const e2 = DataflowBlock.create(currentParsedData.blocks[4]);
+    const f2 = DataflowBlock.create(currentParsedData.blocks[5]);
+
     return (
       <div className="app">
-        <div><span className="infoLabel">Blocks: </span>A = {a.value}, B = {b.value}</div>
-        <div><span className="infoLabel">Sum A + B: </span>{c.currentValue(diagram)}</div>
-        <div><span className="infoLabel">Multiply A * B: </span>{d.currentValue(diagram)}</div>
-        <div><span className="infoLabel">Compare A > B: </span>{e.currentValue(diagram)}</div>
-        <div><span className="infoLabel">Logic A AND B: </span>{f.currentValue(diagram)}</div>
+        <div>
+          <div>Enter Dataflow2 JSON string:</div>
+          <div><textarea defaultValue={JSON.stringify(currentParsedData)} id="sourceData" cols={120} rows={20} /></div>
+          <div><input type="submit" value="submit" onClick={this.updateDiagram} /></div>
+        </div>
+        <hr />
+        <div><span className="infoLabel">Parsed Blocks: </span>A = {a2.value}, B = {b2.value}</div>
+        <div><span className="infoLabel">Sum A + B: </span>{c2.currentValue(currentParsedData)}</div>
+        <div><span className="infoLabel">Multiply A * B: </span>{d2.currentValue(currentParsedData)}</div>
+        <div><span className="infoLabel">Compare A > B: </span>{e2.currentValue(currentParsedData)}</div>
+        <div><span className="infoLabel">Logic A AND B: </span>{f2.currentValue(currentParsedData)}</div>
       </div>
     );
+  }
+  private updateDiagram = () => {
+    const d = document.getElementById("sourceData") as HTMLInputElement;
+    this.setState({ currentParsedData: DataflowDiagram.parseDiagram(d.value) });
   }
 }

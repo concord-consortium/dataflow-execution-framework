@@ -11,6 +11,16 @@ import {
 } from "./dataflow-types";
 
 export class DataflowDiagram implements Diagram {
+  public static parseDiagram(serializedDiagram: string) {
+    const d = JSON.parse(serializedDiagram);
+    return new this(
+      d.name,
+      d.displayedName,
+      d.blocks,
+      d.fileVersion,
+      d.archived
+    );
+  }
   constructor(
     public name: string,
     public displayedName: string,
@@ -24,6 +34,24 @@ export class DataflowDiagram implements Diagram {
 type DataCalc = (a: number, b: number) => number;
 
 export class DataflowBlock implements Block {
+
+  public static create(block: Block) {
+    return new this(
+      block.id,
+      block.name,
+      block.blockType,
+      block.units,
+      block.sources,
+      block.inputCount,
+      block.outputCount,
+      block.inputType,
+      block.outputType,
+      block.value,
+      block.view,
+      block.params
+    );
+  }
+
   private calc: {[op: string]: DataCalc} = {
     "+": (a: number, b: number): number => a + b,
     "-": (a: number, b: number): number => a - b,
