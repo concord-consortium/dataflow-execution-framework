@@ -1,3 +1,4 @@
+import { number, string } from "mobx-state-tree/dist/internal";
 
 export interface Diagram {
   name: string;
@@ -24,18 +25,18 @@ export interface Block {
 
 export enum SensorBlockType { // rename to InputBlockType?
   Temperature = 0,
-  Humidity,
-  CarbonDioxide,
-  Oxygen,
-  Light,
-  SoilMoisture,
-  ParticulateMatter
+  Humidity = 1,
+  CarbonDioxide = 2,
+  Oxygen = 3,
+  Light = 4,
+  SoilMoisture = 5,
+  ParticulateMatter = 6
 }
 
 export enum OutputBlockType {
   Relay = 100,
-  Plot,
-  DataStorage
+  Plot = 101,
+  DataStorage = 102
 }
 
 // deviating from spec, Plus, Minus, Times, Divide become Operator
@@ -43,10 +44,10 @@ export enum OutputBlockType {
 // And, Or, Not, Nand, Xor become LogicOperator
 export enum LogicBlockType {
   Number = 200,
-  Timer,
-  Operator,
-  Comparator,
-  LogicOperator
+  Timer = 201,
+  Operator = 202,
+  Comparator = 203,
+  LogicOperator = 204
 }
 export enum IOType { bool, number, image } // bool, number, image
 

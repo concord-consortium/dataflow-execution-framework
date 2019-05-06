@@ -9,15 +9,21 @@ import {
   Params,
   Plot
 } from "./dataflow-types";
+import { ParseImportedBlock } from "./dataflow-parser";
 
 export class DataflowDiagram implements Diagram {
   public static parseDiagram(serializedDiagram: string) {
     const d = JSON.parse(serializedDiagram);
+    // go through blocks and find type
+    const blocks = [];
+    for (const b of d.blocks) {
+      blocks.push(DataflowBlock.create(b));
+    }
     return new this(
       d.name,
       d.displayedName,
-      d.blocks,
-      d.fileVersion,
+      blocks,
+      d.file_version,
       d.archived
     );
   }
@@ -34,8 +40,13 @@ export class DataflowDiagram implements Diagram {
 type DataCalc = (a: number, b: number) => number;
 
 export class DataflowBlock implements Block {
+  public static create(block: any) {
+    if (!block.blockType && block.type) {
+      const parsedBlock = ParseImportedBlock(block.type, block.value);
+      block.blockType = parsedBlock.blockType;
+      block.value = parsedBlock.value;
+    }
 
-  public static create(block: Block) {
     return new this(
       block.id,
       block.name,
@@ -61,11 +72,13 @@ export class DataflowBlock implements Block {
     "<": (a: number, b: number): number => a < b ? 1 : 0,
     ">=": (a: number, b: number): number => a >= b ? 1 : 0,
     "<=": (a: number, b: number): number => a <= b ? 1 : 0,
-    "AND": (a: number, b: number): number => a && b ? 1 : 0,
-    "OR": (a: number, b: number): number => a || b ? 1 : 0,
-    "NOT": (a: number, b: number): number => a ? 0 : 1,
-    "NAND": (a: number, b: number): number => !(a && b) ? 1 : 0,
-    "XOR": (a: number, b: number): number =>  !(a && b) && (a || b) ? 1 : 0,
+    "=": (a: number, b: number): number => a === b ? 1 : 0,
+    "!=": (a: number, b: number): number => a !== b ? 1 : 0,
+    "and": (a: number, b: number): number => a && b ? 1 : 0,
+    "or": (a: number, b: number): number => a || b ? 1 : 0,
+    "not": (a: number, b: number): number => a ? 0 : 1,
+    "nand": (a: number, b: number): number => !(a && b) ? 1 : 0,
+    "xor": (a: number, b: number): number =>  !(a && b) && (a || b) ? 1 : 0,
   };
 
   constructor(

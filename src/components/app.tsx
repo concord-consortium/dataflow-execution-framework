@@ -41,7 +41,43 @@ export class AppComponent extends BaseComponent<IProps, IState> {
       if (dfBlock.isOutput()) outputs.push(dfBlock);
       if (dfBlock.isLogic()) logic.push(dfBlock);
     }
+    // Show what we parsed
+    const renderInputs = () => {
+      const inputBlocks = [];
+      for (const b of inputs) {
+        inputBlocks.push(<span key={b.id}>{b.name}:{b.value ? b.value : 0}&nbsp;</span>);
+      }
+      return <div>Inputs: {inputBlocks}</div>;
+    };
+    const renderLogicBlocks = () => {
+      const logicBlocks = [];
+      for (const b of logic) {
+        logicBlocks.push(<span key={b.id}>{b.name}:{b.value}&nbsp;</span>);
+      }
+      return <div>Logic blocks: {logicBlocks}</div>;
+    };
+    const renderOutputs = () => {
+      const outputBlocks = [];
+      for (const b of outputs) {
+        outputBlocks.push(<span key={b.id}>{b.name}:{b.value}&nbsp;</span>);
+      }
+      return <div>Outputs: {outputBlocks}</div>;
+    };
 
+    const renderLogicComputedValues = () => {
+      const logicBlocks = [];
+      for (const b of logic) {
+        if (b.sources.length > 0) {
+          const i1 = inputs ? inputs[b.sources[0]] : undefined;
+          const i2 = inputs && b.sources[1] ? inputs[b.sources[1]] : undefined;
+          logicBlocks.push(
+            <div key={b.id}>{i1 ? i1.name : ""} {b.value}
+              {i2 ? i2.name : ""} {b.currentValue(currentDiagram)}
+            </div>);
+        }
+      }
+      return <div>Logic calculations: {logicBlocks}</div>;
+    };
     return (
       <div className="app">
         <div>
@@ -50,16 +86,21 @@ export class AppComponent extends BaseComponent<IProps, IState> {
           <div><input type="submit" value="submit" onClick={this.updateDiagram} /></div>
         </div>
         <hr />
-        <div><span className="infoLabel">Parsed Blocks: </span>A = {inputs[0].value}, B = {inputs[1].value}</div>
-        <div><span className="infoLabel">Sum A + B: </span>{logic[0].currentValue(currentDiagram)}</div>
-        <div><span className="infoLabel">Multiply A * B: </span>{logic[1].currentValue(currentDiagram)}</div>
-        <div><span className="infoLabel">Compare A > B: </span>{logic[2].currentValue(currentDiagram)}</div>
-        <div><span className="infoLabel">Logic A AND B: </span>{logic[3].currentValue(currentDiagram)}</div>
+        <div>{renderInputs()}</div>
+        <div>{renderLogicBlocks()}</div>
+        <div>{renderOutputs()}</div>
+        <hr />
+        <div><span className="infoLabel">Parsed Blocks: </span>{renderInputs()}</div>
+        {renderLogicComputedValues()}
       </div>
     );
   }
   private updateDiagram = () => {
     const d = document.getElementById("sourceData") as HTMLInputElement;
-    this.setState({ currentDiagram: DataflowDiagram.parseDiagram(d.value) });
+    const newDiagram = DataflowDiagram.parseDiagram(d.value);
+    console.log(newDiagram);
+    if (newDiagram) {
+      this.setState({ currentDiagram: newDiagram });
+    }
   }
 }

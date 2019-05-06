@@ -60,19 +60,19 @@ describe("Dataflow Block", () => {
 
   it("can perform logic operations", () => {
     c.blockType = LogicBlockType.LogicOperator;
-    c.value = "AND";
+    c.value = "and";
     expect(c.currentValue(diagram)).toBe(1);
-    c.value = "OR";
+    c.value = "or";
     expect(c.currentValue(diagram)).toBe(1);
-    c.value = "NOT";
+    c.value = "not";
     expect(c.currentValue(diagram)).toBe(0);
-    c.value = "NAND";
+    c.value = "nand";
     expect(c.currentValue(diagram)).toBe(0);
   });
 
   it("can handle more advanced logic operations", () => {
     c.blockType = LogicBlockType.LogicOperator;
-    c.value = "XOR";
+    c.value = "xor";
     expect(c.currentValue(diagram)).toBe(0);
     a.value = 0;
     expect(c.currentValue(diagram)).toBe(1);
