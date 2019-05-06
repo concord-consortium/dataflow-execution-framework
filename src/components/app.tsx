@@ -98,7 +98,6 @@ export class AppComponent extends BaseComponent<IProps, IState> {
   private updateDiagram = () => {
     const d = document.getElementById("sourceData") as HTMLInputElement;
     const newDiagram = DataflowDiagram.parseDiagram(d.value);
-    console.log(newDiagram);
     if (newDiagram) {
       this.setState({ currentDiagram: newDiagram });
     }
