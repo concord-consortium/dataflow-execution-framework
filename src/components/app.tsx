@@ -5,11 +5,6 @@ import {
   DataflowDiagram,
   DataflowBlock
 } from "../models/dataflow/dataflow-diagram";
-import {
-  InputBlockType,
-  LogicBlockType,
-  IOType
-} from "../models/dataflow/dataflow-types";
 import { sample } from "../data/sample";
 import "./app.sass";
 

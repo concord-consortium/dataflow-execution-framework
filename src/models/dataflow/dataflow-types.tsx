@@ -6,14 +6,15 @@ export interface Diagram {
   blocks: Block[];
   fileVersion: number;
   archived: boolean;
+  dataStorage?: DataStorage;
 }
 
 export interface Block {
-  id: string;
+  id: string; // system generated - a number?
   name: string;
   blockType: InputBlockType | OutputBlockType | LogicBlockType;
   units: string;
-  sources: number[];
+  sources: number[]; // assumed these were array index of block in diagram.blocks, but it's actually a lookup of id
   inputCount: number;
   outputCount: number;
   inputType: IOType;
@@ -21,6 +22,14 @@ export interface Block {
   value: number | string;
   view: Point;
   params?: Params;
+}
+
+export interface DataStorage {
+  id: string;
+  name: string;
+  interval: number;
+  location: DataStorageLocation;
+  data: DataSeries[];
 }
 
 export enum InputBlockType {
@@ -50,6 +59,15 @@ export enum LogicBlockType {
   LogicOperator = 203
 }
 export enum IOType { bool, number, image } // bool, number, image
+
+// permanent storage of data - where do we send it? likely just firebase?
+export enum DataStorageLocation { firebase, database, none }
+
+export interface DataSeries {
+  dataType: number;
+  dataSource: number;
+  values: Point[];
+}
 
 export interface Params {
   recordingInterval: number;

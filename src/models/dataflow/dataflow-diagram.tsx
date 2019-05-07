@@ -7,7 +7,10 @@ import {
   IOType,
   Point,
   Params,
-  Plot
+  Plot,
+  DataStorage,
+  DataStorageLocation,
+  DataSeries
 } from "./dataflow-types";
 import { ParseImportedBlock } from "./dataflow-parser";
 
@@ -16,15 +19,22 @@ export class DataflowDiagram implements Diagram {
     const d = JSON.parse(serializedDiagram);
     // go through blocks and find type
     const blocks = [];
+    let dataStorage = null;
     for (const b of d.blocks) {
-      blocks.push(DataflowBlock.create(b));
+      const newBlock = DataflowBlock.create(b);
+      if (newBlock.blockType === OutputBlockType.DataStorage) {
+        dataStorage = new DataflowStorage(b.name, b.id, b.value as number, DataStorageLocation.firebase, []);
+      }
+      blocks.push(newBlock);
     }
+
     return new this(
       d.name ? d.name : "New Diagram",
       d.displayedName ? d.displayedName : d.name ? d.name : "New Diagram",
       blocks,
       d.file_version ? d.file_version : "0.1",
-      d.archived
+      d.archived,
+      dataStorage ? dataStorage : undefined
     );
   }
   constructor(
@@ -32,7 +42,8 @@ export class DataflowDiagram implements Diagram {
     public displayedName: string,
     public blocks: Block[],
     public fileVersion: number,
-    public archived: boolean = false
+    public archived: boolean = false,
+    public dataStorage?: DataStorage
   ) {
   }
 
@@ -175,6 +186,25 @@ export class DataflowBlock implements Block {
       }
     }
     return val;
+  }
+}
+
+export class DataflowStorage implements DataStorage {
+  constructor(
+    public name: string,
+    public id: string,
+    public interval: number,
+    public location: DataStorageLocation,
+    public data: DataSeries[]
+  ) {
+  }
+  public addDataSeries(dataType: number, dataSource: number) {
+    const newSeries: DataSeries = {
+      dataType,
+      dataSource,
+      values: []
+    };
+    this.data.push(newSeries);
   }
 }
 

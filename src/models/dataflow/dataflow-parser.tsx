@@ -72,6 +72,9 @@ export const ParseImportedBlock = (importedType: string, importedValue: string) 
       blockType = LogicBlockType.Comparator;
       blockValue = "!=";
       break;
+    case "data storage":
+      blockType = OutputBlockType.DataStorage;
+      break;
     default:
       if (!!InputBlockType[importedType as any]) {
         blockType = InputBlockType[importedType as keyof typeof InputBlockType];
