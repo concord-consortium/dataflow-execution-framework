@@ -33,7 +33,7 @@ export class AppComponent extends BaseComponent<IProps, IState> {
     const blocksByType = currentDiagram.getBlocksByType();
 
     const blocks: DataflowBlock[] = blocksByType.allBlocks;
-    const inputs: DataflowBlock[] = blocksByType.sensors;
+    const inputs: DataflowBlock[] = blocksByType.inputs;
     const logic: DataflowBlock[] = blocksByType.logic;
     const outputs: DataflowBlock[] = blocksByType.outputs;
 
