@@ -11,7 +11,7 @@ export interface Diagram {
 export interface Block {
   id: string;
   name: string;
-  blockType: SensorBlockType | OutputBlockType | LogicBlockType;
+  blockType: InputBlockType | OutputBlockType | LogicBlockType;
   units: string;
   sources: number[];
   inputCount: number;
@@ -23,14 +23,15 @@ export interface Block {
   params?: Params;
 }
 
-export enum SensorBlockType { // rename to InputBlockType?
+export enum InputBlockType {
   Temperature = 0,
   Humidity = 1,
   CarbonDioxide = 2,
   Oxygen = 3,
   Light = 4,
   SoilMoisture = 5,
-  ParticulateMatter = 6
+  ParticulateMatter = 6,
+  Number = 7,
 }
 
 export enum OutputBlockType {
@@ -43,11 +44,10 @@ export enum OutputBlockType {
 // GT, LT, ET, NET become Comparator
 // And, Or, Not, Nand, Xor become LogicOperator
 export enum LogicBlockType {
-  Number = 200,
-  Timer = 201,
-  Operator = 202,
-  Comparator = 203,
-  LogicOperator = 204
+  Timer = 200,
+  Operator = 201,
+  Comparator = 202,
+  LogicOperator = 203
 }
 export enum IOType { bool, number, image } // bool, number, image
 

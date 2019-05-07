@@ -1,4 +1,4 @@
-import { SensorBlockType, LogicBlockType, OutputBlockType } from "./dataflow-types";
+import { InputBlockType, LogicBlockType, OutputBlockType } from "./dataflow-types";
 
 // convert from 2.0 format
 export const ParseImportedBlock = (importedType: string, importedValue: string) => {
@@ -7,25 +7,28 @@ export const ParseImportedBlock = (importedType: string, importedValue: string) 
 
   switch (importedType) {
     case "temperature":
-      blockType = SensorBlockType.Temperature;
+      blockType = InputBlockType.Temperature;
       break;
     case "humidity":
-      blockType = SensorBlockType.Humidity;
+      blockType = InputBlockType.Humidity;
       break;
     case "CO2":
-      blockType = SensorBlockType.CarbonDioxide;
+      blockType = InputBlockType.CarbonDioxide;
       break;
     case "O2":
-      blockType = SensorBlockType.Oxygen;
+      blockType = InputBlockType.Oxygen;
       break;
     case "light":
-      blockType = SensorBlockType.Light;
+      blockType = InputBlockType.Light;
       break;
     case "soilmoisture":
-      blockType = SensorBlockType.SoilMoisture;
+      blockType = InputBlockType.SoilMoisture;
       break;
     case "number":
-      blockType = LogicBlockType.Number;
+      blockType = InputBlockType.Number;
+      break;
+    case "number_entry":
+      blockType = InputBlockType.Number;
       break;
     case "timer":
       blockType = LogicBlockType.Timer;
@@ -70,8 +73,8 @@ export const ParseImportedBlock = (importedType: string, importedValue: string) 
       blockValue = "!=";
       break;
     default:
-      if (!!SensorBlockType[importedType as any]) {
-        blockType = SensorBlockType[importedType as keyof typeof SensorBlockType];
+      if (!!InputBlockType[importedType as any]) {
+        blockType = InputBlockType[importedType as keyof typeof InputBlockType];
       } else if (!!LogicBlockType[importedType as any]) {
         blockType = LogicBlockType[importedType as keyof typeof LogicBlockType];
       } else if (!!OutputBlockType[importedType as any]) {

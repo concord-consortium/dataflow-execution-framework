@@ -1,7 +1,7 @@
 import {
   Block,
   Diagram,
-  SensorBlockType,
+  InputBlockType,
   OutputBlockType,
   LogicBlockType,
   IOType,
@@ -44,12 +44,12 @@ export class DataflowDiagram implements Diagram {
     for (const b of this.blocks) {
       const dfBlock = DataflowBlock.create(b);
       blocks.push(dfBlock);
-      if (dfBlock.isSensor()) inputs.push(dfBlock);
+      if (dfBlock.isInput()) inputs.push(dfBlock);
       if (dfBlock.isOutput()) outputs.push(dfBlock);
       if (dfBlock.isLogic()) logic.push(dfBlock);
     }
     return {
-      sensors: inputs,
+      inputs,
       logic,
       outputs,
       allBlocks: blocks
@@ -104,7 +104,7 @@ export class DataflowBlock implements Block {
   constructor(
     public id: string,
     public name: string,
-    public blockType: SensorBlockType | OutputBlockType | LogicBlockType,
+    public blockType: InputBlockType | OutputBlockType | LogicBlockType,
     public units: string,
     public sources: number[],
     public inputCount: number,
@@ -117,8 +117,8 @@ export class DataflowBlock implements Block {
   ) {
   }
 
-  public isSensor() {
-    return SensorBlockType[this.blockType] !== undefined;
+  public isInput() {
+    return InputBlockType[this.blockType] !== undefined;
   }
   public isOutput() {
     return OutputBlockType[this.blockType] !== undefined;
@@ -131,7 +131,7 @@ export class DataflowBlock implements Block {
     let val = this.value && typeof(this.value) === "number" ? this.value : 0;
 
     // A sensor is an input block
-    if (this.isSensor()) {
+    if (this.isInput()) {
       if (this.inputCount > 0) {
         // take inputs
         val += this.inputCount;
@@ -174,10 +174,8 @@ export class DataflowBlock implements Block {
           return val;
       }
     }
-
     return val;
   }
-
 }
 
 export class DataflowPlot implements Plot{

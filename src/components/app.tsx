@@ -6,7 +6,7 @@ import {
   DataflowBlock
 } from "../models/dataflow/dataflow-diagram";
 import {
-  SensorBlockType,
+  InputBlockType,
   LogicBlockType,
   IOType
 } from "../models/dataflow/dataflow-types";
