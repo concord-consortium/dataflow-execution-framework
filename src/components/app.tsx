@@ -24,23 +24,19 @@ export class AppComponent extends BaseComponent<IProps, IState> {
   constructor(props: IProps) {
     super(props);
     this.state = {
-      currentDiagram: DataflowDiagram.parseDiagram(sample)
+      currentDiagram: DataflowDiagram.create(sample)
     };
   }
   public render() {
     const { currentDiagram } = this.state;
     // test data
-    const blocks: DataflowBlock[] = [];
-    const inputs: DataflowBlock[] = [];
-    const logic: DataflowBlock[] = [];
-    const outputs: DataflowBlock[] = [];
-    for (const b of currentDiagram.blocks) {
-      const dfBlock = DataflowBlock.create(b);
-      blocks.push(dfBlock);
-      if (dfBlock.isSensor()) inputs.push(dfBlock);
-      if (dfBlock.isOutput()) outputs.push(dfBlock);
-      if (dfBlock.isLogic()) logic.push(dfBlock);
-    }
+    const blocksByType = currentDiagram.getBlocksByType();
+
+    const blocks: DataflowBlock[] = blocksByType.allBlocks;
+    const inputs: DataflowBlock[] = blocksByType.sensors;
+    const logic: DataflowBlock[] = blocksByType.logic;
+    const outputs: DataflowBlock[] = blocksByType.outputs;
+
     // Show what we parsed
     const renderInputs = () => {
       const inputBlocks = [];
@@ -97,7 +93,7 @@ export class AppComponent extends BaseComponent<IProps, IState> {
   }
   private updateDiagram = () => {
     const d = document.getElementById("sourceData") as HTMLInputElement;
-    const newDiagram = DataflowDiagram.parseDiagram(d.value);
+    const newDiagram = DataflowDiagram.create(d.value);
     if (newDiagram) {
       this.setState({ currentDiagram: newDiagram });
     }

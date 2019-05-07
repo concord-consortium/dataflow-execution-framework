@@ -12,7 +12,7 @@ import {
 import { ParseImportedBlock } from "./dataflow-parser";
 
 export class DataflowDiagram implements Diagram {
-  public static parseDiagram(serializedDiagram: string) {
+  public static create(serializedDiagram: string) {
     const d = JSON.parse(serializedDiagram);
     // go through blocks and find type
     const blocks = [];
@@ -20,10 +20,10 @@ export class DataflowDiagram implements Diagram {
       blocks.push(DataflowBlock.create(b));
     }
     return new this(
-      d.name,
-      d.displayedName,
+      d.name ? d.name : "New Diagram",
+      d.displayedName ? d.displayedName : d.name ? d.name : "New Diagram",
       blocks,
-      d.file_version,
+      d.file_version ? d.file_version : "0.1",
       d.archived
     );
   }
@@ -34,6 +34,26 @@ export class DataflowDiagram implements Diagram {
     public fileVersion: number,
     public archived: boolean = false
   ) {
+  }
+
+  public getBlocksByType() {
+    const blocks: DataflowBlock[] = [];
+    const inputs: DataflowBlock[] = [];
+    const logic: DataflowBlock[] = [];
+    const outputs: DataflowBlock[] = [];
+    for (const b of this.blocks) {
+      const dfBlock = DataflowBlock.create(b);
+      blocks.push(dfBlock);
+      if (dfBlock.isSensor()) inputs.push(dfBlock);
+      if (dfBlock.isOutput()) outputs.push(dfBlock);
+      if (dfBlock.isLogic()) logic.push(dfBlock);
+    }
+    return {
+      sensors: inputs,
+      logic,
+      outputs,
+      allBlocks: blocks
+    };
   }
 }
 
