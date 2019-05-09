@@ -155,7 +155,8 @@ export class DataflowBlock implements Block {
       if (this.inputCount > 1 && diagram) {
         const values: number[] = [];
         for (let i = 0; i < this.inputCount; i++) {
-          const inputValue = diagram.blocks[this.sources[i]].value;
+          const block = diagram.blocks.find( b => parseInt(b.id, 10) === this.sources[i] );
+          const inputValue = block && block.value;
           // since a value could be a number, string or null, verify we have values
           if (inputValue && typeof (inputValue) === "number") {
             values.push(inputValue);

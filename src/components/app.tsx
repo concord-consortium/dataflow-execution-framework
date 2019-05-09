@@ -59,8 +59,8 @@ export class AppComponent extends BaseComponent<IProps, IState> {
       const logicBlocks = [];
       for (const b of logic) {
         if (b.sources.length > 0) {
-          const i1 = inputs ? inputs[b.sources[0]] : undefined;
-          const i2 = inputs && b.sources[1] ? inputs[b.sources[1]] : undefined;
+          const i1 = inputs ? inputs.find( i => parseInt(i.id, 10) === b.sources[0] ) : undefined;
+          const i2 = inputs && b.sources[1] ? inputs.find( i => parseInt(i.id, 10) === b.sources[1] ) : undefined;
           logicBlocks.push(
             <div key={b.id}>{i1 ? i1.name : ""} {b.name} {i2 ? i2.name : ""} {b.currentValue(currentDiagram)}
             </div>);
