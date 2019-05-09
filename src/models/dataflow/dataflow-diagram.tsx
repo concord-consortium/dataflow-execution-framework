@@ -110,6 +110,7 @@ export class DataflowBlock implements Block {
     "not": (a: number, b: number): number => a ? 0 : 1,
     "nand": (a: number, b: number): number => !(a && b) ? 1 : 0,
     "xor": (a: number, b: number): number =>  !(a && b) && (a || b) ? 1 : 0,
+    "abs": (a: number, b: number): number =>  Math.abs(a),
   };
 
   constructor(
@@ -152,7 +153,7 @@ export class DataflowBlock implements Block {
 
     // A logic block operates on inputs and produces a value
     else if (this.isLogic()) {
-      if (this.inputCount > 1 && diagram) {
+      if (this.inputCount > 0 && diagram) {
         const values: number[] = [];
         for (let i = 0; i < this.inputCount; i++) {
           const block = diagram.blocks.find( b => parseInt(b.id, 10) === this.sources[i] );
