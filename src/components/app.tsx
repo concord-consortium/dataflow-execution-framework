@@ -62,8 +62,7 @@ export class AppComponent extends BaseComponent<IProps, IState> {
           const i1 = inputs ? inputs[b.sources[0]] : undefined;
           const i2 = inputs && b.sources[1] ? inputs[b.sources[1]] : undefined;
           logicBlocks.push(
-            <div key={b.id}>{i1 ? i1.name : ""} {b.value}
-              {i2 ? i2.name : ""} {b.currentValue(currentDiagram)}
+            <div key={b.id}>{i1 ? i1.name : ""} {b.name} {i2 ? i2.name : ""} {b.currentValue(currentDiagram)}
             </div>);
         }
       }
