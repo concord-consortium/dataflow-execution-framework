@@ -79,12 +79,28 @@ export const ParseImportedBlock = (importedType: string, importedValue: string) 
       blockType = OutputBlockType.DataStorage;
       break;
     case "absolute value":
-      blockType = LogicBlockType.Comparator;
+      blockType = LogicBlockType.Operator;
       blockValue = "abs";
       break;
     case "not":
-      blockType = LogicBlockType.Comparator;
+      blockType = LogicBlockType.Operator;
       blockValue = "not";
+      break;
+    case "and":
+      blockType = LogicBlockType.Operator;
+      blockValue = "and";
+      break;
+    case "or":
+      blockType = LogicBlockType.Operator;
+      blockValue = "or";
+      break;
+    case "nand":
+      blockType = LogicBlockType.Operator;
+      blockValue = "nand";
+      break;
+    case "xor":
+      blockType = LogicBlockType.Operator;
+      blockValue = "xor";
       break;
     default:
       if (!!InputBlockType[importedType as any]) {
