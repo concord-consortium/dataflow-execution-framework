@@ -108,7 +108,9 @@ export class AppComponent extends BaseComponent<IProps, IState> {
     const selectedSample = e.currentTarget.value as string;
     const currentSample: Sample | undefined = getSamples().find(s => s.name === selectedSample);
     if (currentSample) {
+      document.getElementsByTagName("textarea")[0].value = currentSample.data;
       this.setState({
+        currentDiagramName: currentSample.name,
         currentDiagram: DataflowDiagram.create(currentSample.data)
       });
     }
