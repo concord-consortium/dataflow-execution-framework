@@ -1,4 +1,4 @@
-import { InputBlockType, LogicBlockType, OutputBlockType } from "./dataflow-types";
+import { InputBlockType, LogicBlockType, OutputBlockType, VirtualInputBlockType } from "./dataflow-types";
 
 // convert from 2.0 format
 export const ParseImportedBlock = (importedType: string, importedValue: string) => {
@@ -34,7 +34,7 @@ export const ParseImportedBlock = (importedType: string, importedValue: string) 
       blockType = InputBlockType.Number;
       break;
     case "timer":
-      blockType = LogicBlockType.Timer;
+      blockType = VirtualInputBlockType.Timer;
       break;
     case "relay":
       blockType = OutputBlockType.Relay;

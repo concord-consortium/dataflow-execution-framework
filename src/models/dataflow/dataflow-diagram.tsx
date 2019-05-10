@@ -2,6 +2,7 @@ import {
   Block,
   Diagram,
   InputBlockType,
+  VirtualInputBlockType,
   OutputBlockType,
   LogicBlockType,
   IOType,
@@ -50,17 +51,20 @@ export class DataflowDiagram implements Diagram {
   public getBlocksByType() {
     const blocks: DataflowBlock[] = [];
     const inputs: DataflowBlock[] = [];
+    const virtualInputs: DataflowBlock[] = [];
     const logic: DataflowBlock[] = [];
     const outputs: DataflowBlock[] = [];
     for (const b of this.blocks) {
       const dfBlock = DataflowBlock.create(b);
       blocks.push(dfBlock);
       if (dfBlock.isInput()) inputs.push(dfBlock);
+      if (dfBlock.isVirtualInput()) virtualInputs.push(dfBlock);
       if (dfBlock.isOutput()) outputs.push(dfBlock);
       if (dfBlock.isLogic()) logic.push(dfBlock);
     }
     return {
       inputs,
+      virtualInputs,
       logic,
       outputs,
       allBlocks: blocks
@@ -131,6 +135,9 @@ export class DataflowBlock implements Block {
 
   public isInput() {
     return InputBlockType[this.blockType] !== undefined;
+  }
+  public isVirtualInput() {
+    return VirtualInputBlockType[this.blockType] !== undefined;
   }
   public isOutput() {
     return OutputBlockType[this.blockType] !== undefined;

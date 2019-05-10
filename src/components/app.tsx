@@ -33,6 +33,7 @@ export class AppComponent extends BaseComponent<IProps, IState> {
     const inputs: DataflowBlock[] = blocksByType.inputs;
     const logic: DataflowBlock[] = blocksByType.logic;
     const outputs: DataflowBlock[] = blocksByType.outputs;
+    const virtualInputs: DataflowBlock[] = blocksByType.virtualInputs;
 
     // Show what we parsed
     const renderInputs = () => {
@@ -41,6 +42,13 @@ export class AppComponent extends BaseComponent<IProps, IState> {
         inputBlocks.push(<span key={b.id}>{b.name}:{b.value ? b.value : 0}&nbsp;</span>);
       }
       return <div>Inputs: {inputBlocks}</div>;
+    };
+    const renderVirtualInputs = () => {
+      const virtualInputBlocks = [];
+      for (const b of virtualInputs) {
+        virtualInputBlocks.push(<span key={b.id}>{b.name}:{b.value ? b.value : 0}&nbsp;</span>);
+      }
+      return <div>Virtual Inputs: {virtualInputBlocks}</div>;
     };
     const renderLogicBlocks = () => {
       const logicBlocks = [];
@@ -87,6 +95,7 @@ export class AppComponent extends BaseComponent<IProps, IState> {
         </div>
         <hr />
         <div>{renderInputs()}</div>
+        <div>{renderVirtualInputs()}</div>
         <div>{renderLogicBlocks()}</div>
         <div>{renderOutputs()}</div>
         <hr />
