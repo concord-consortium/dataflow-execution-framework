@@ -24,6 +24,9 @@ export const ParseImportedBlock = (importedType: string, importedValue: string) 
     case "soilmoisture":
       blockType = InputBlockType.SoilMoisture;
       break;
+    case "particulates":
+      blockType = InputBlockType.ParticulateMatter;
+      break;
     case "number":
       blockType = InputBlockType.Number;
       break;
