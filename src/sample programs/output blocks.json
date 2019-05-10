@@ -1,0 +1,74 @@
+{
+  "file_version": "0.1",
+  "blocks": [
+    {
+      "id": 12,
+      "name": "relay",
+      "type": "relay",
+      "sources": [],
+      "input_count": 1,
+      "output_count": 0,
+      "input_type": "n",
+      "output_type": null,
+      "has_seq": false,
+      "params": [],
+      "value": null,
+      "view": {
+        "x": 35,
+        "y": 35
+      }
+    },
+    {
+      "id": 13,
+      "name": "plot",
+      "type": "plot",
+      "sources": [],
+      "input_count": 1,
+      "output_count": 0,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": null,
+      "view": {
+        "x": 40,
+        "y": 70
+      }
+    },
+    {
+      "id": 14,
+      "name": "data storage",
+      "type": "data storage",
+      "sources": [],
+      "input_count": 1,
+      "output_count": 0,
+      "input_type": "n",
+      "output_type": null,
+      "has_seq": false,
+      "params": [
+        {
+          "name": "recording_interval",
+          "value": 1,
+          "default": 1
+        },
+        {
+          "name": "dataset_location",
+          "value": "test dataset",
+          "default": "mydataset"
+        },
+        {
+          "name": "sequence_names",
+          "value": {}
+        }
+      ],
+      "value": null,
+      "view": {
+        "x": 45,
+        "y": 105
+      }
+    }
+  ],
+  "archived": false,
+  "displayedName": "test",
+  "name": "program_20190509_135739"
+}

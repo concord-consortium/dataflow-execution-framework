@@ -1,0 +1,89 @@
+{
+  "file_version": "0.1",
+  "blocks": [
+    {
+      "id": 15,
+      "name": "timer",
+      "type": "timer",
+      "units": "seconds",
+      "sources": [],
+      "input_count": 0,
+      "output_count": 1,
+      "input_type": null,
+      "output_type": "n",
+      "has_seq": false,
+      "params": [
+        {
+          "name": "seconds_on",
+          "value": 5,
+          "default": 5
+        },
+        {
+          "name": "seconds_off",
+          "value": 5,
+          "default": 5
+        }
+      ],
+      "value": null,
+      "view": {
+        "x": 35,
+        "y": 35
+      }
+    },
+    {
+      "id": 16,
+      "name": "moving average",
+      "type": "simple moving average",
+      "sources": [],
+      "input_count": 1,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [
+        {
+          "name": "period",
+          "type": "n",
+          "min": 0,
+          "max": 9999,
+          "value": 10,
+          "default": 10
+        }
+      ],
+      "value": null,
+      "view": {
+        "x": 40,
+        "y": 70
+      }
+    },
+    {
+      "id": 17,
+      "name": "exp moving average",
+      "type": "exponential moving average",
+      "sources": [],
+      "input_count": 1,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [
+        {
+          "name": "period",
+          "type": "n",
+          "min": 0,
+          "max": 9999,
+          "value": 10,
+          "default": 10
+        }
+      ],
+      "value": null,
+      "view": {
+        "x": 45,
+        "y": 105
+      }
+    }
+  ],
+  "archived": false,
+  "displayedName": "test",
+  "name": "program_20190509_135739"
+}
