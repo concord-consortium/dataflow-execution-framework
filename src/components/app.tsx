@@ -5,11 +5,12 @@ import {
   DataflowDiagram,
   DataflowBlock
 } from "../models/dataflow/dataflow-diagram";
-import { sample } from "../data/sample";
+import { Sample, getSamples } from "../sample programs/samples";
 import "./app.sass";
 
 interface IProps extends IBaseProps {}
 interface IState {
+  currentDiagramName: string;
   currentDiagram: DataflowDiagram;
 }
 
@@ -19,7 +20,8 @@ export class AppComponent extends BaseComponent<IProps, IState> {
   constructor(props: IProps) {
     super(props);
     this.state = {
-      currentDiagram: DataflowDiagram.create(sample)
+      currentDiagramName: getSamples()[0].name,
+      currentDiagram: DataflowDiagram.create(getSamples()[0].data)
     };
   }
   public render() {
@@ -31,6 +33,7 @@ export class AppComponent extends BaseComponent<IProps, IState> {
     const inputs: DataflowBlock[] = blocksByType.inputs;
     const logic: DataflowBlock[] = blocksByType.logic;
     const outputs: DataflowBlock[] = blocksByType.outputs;
+    const virtualInputs: DataflowBlock[] = blocksByType.virtualInputs;
 
     // Show what we parsed
     const renderInputs = () => {
@@ -39,6 +42,13 @@ export class AppComponent extends BaseComponent<IProps, IState> {
         inputBlocks.push(<span key={b.id}>{b.name}:{b.value ? b.value : 0}&nbsp;</span>);
       }
       return <div>Inputs: {inputBlocks}</div>;
+    };
+    const renderVirtualInputs = () => {
+      const virtualInputBlocks = [];
+      for (const b of virtualInputs) {
+        virtualInputBlocks.push(<span key={b.id}>{b.name}:{b.value ? b.value : 0}&nbsp;</span>);
+      }
+      return <div>Virtual Inputs: {virtualInputBlocks}</div>;
     };
     const renderLogicBlocks = () => {
       const logicBlocks = [];
@@ -59,25 +69,33 @@ export class AppComponent extends BaseComponent<IProps, IState> {
       const logicBlocks = [];
       for (const b of logic) {
         if (b.sources.length > 0) {
-          const i1 = inputs ? inputs[b.sources[0]] : undefined;
-          const i2 = inputs && b.sources[1] ? inputs[b.sources[1]] : undefined;
+          const i1 = inputs ? inputs.find( i => parseInt(i.id, 10) === b.sources[0] ) : undefined;
+          const i2 = inputs && b.sources[1] ? inputs.find( i => parseInt(i.id, 10) === b.sources[1] ) : undefined;
           logicBlocks.push(
-            <div key={b.id}>{i1 ? i1.name : ""} {b.value}
-              {i2 ? i2.name : ""} {b.currentValue(currentDiagram)}
+            <div key={b.id}>{i1 ? i1.name : ""} {b.name} {i2 ? i2.name : ""} {b.currentValue(currentDiagram)}
             </div>);
         }
       }
       return <div>Logic calculations: {logicBlocks}</div>;
     };
+    const namedSamples = () => {
+      const allSamples = getSamples();
+      return allSamples.map(s => <option key={s.name}>{s.name}</option>);
+    };
+
     return (
       <div className="app">
         <div>
           <div>Enter Dataflow2 JSON string:</div>
+          <select onChange={this.changeSelectedData}>
+            {namedSamples()}
+          </select>
           <div><textarea defaultValue={JSON.stringify(currentDiagram)} id="sourceData" cols={120} rows={20} /></div>
           <div><input type="submit" value="submit" onClick={this.updateDiagram} /></div>
         </div>
         <hr />
         <div>{renderInputs()}</div>
+        <div>{renderVirtualInputs()}</div>
         <div>{renderLogicBlocks()}</div>
         <div>{renderOutputs()}</div>
         <hr />
@@ -86,11 +104,26 @@ export class AppComponent extends BaseComponent<IProps, IState> {
       </div>
     );
   }
+  private changeSelectedData = (e: React.FormEvent<HTMLSelectElement>) => {
+    const selectedSample = e.currentTarget.value as string;
+    const currentSample: Sample | undefined = getSamples().find(s => s.name === selectedSample);
+    if (currentSample) {
+      document.getElementsByTagName("textarea")[0].value = currentSample.data;
+      this.setState({
+        currentDiagramName: currentSample.name,
+        currentDiagram: DataflowDiagram.create(currentSample.data)
+      });
+    }
+  }
+
   private updateDiagram = () => {
     const d = document.getElementById("sourceData") as HTMLInputElement;
     const newDiagram = DataflowDiagram.create(d.value);
     if (newDiagram) {
-      this.setState({ currentDiagram: newDiagram });
+      this.setState({
+        currentDiagram: newDiagram,
+        currentDiagramName: ""
+      });
     }
   }
 }

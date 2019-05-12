@@ -10,7 +10,7 @@ export interface Diagram {
 }
 
 export interface Block {
-  id: string; // system generated - a number?
+  id: string; // system generated - a number
   name: string;
   blockType: InputBlockType | OutputBlockType | LogicBlockType;
   units: string;
@@ -53,11 +53,15 @@ export enum OutputBlockType {
 // GT, LT, ET, NET become Comparator
 // And, Or, Not, Nand, Xor become LogicOperator
 export enum LogicBlockType {
-  Timer = 200,
-  Operator = 201,
-  Comparator = 202,
-  LogicOperator = 203
+  Operator = 200,
+  Comparator = 201,
+  LogicOperator = 202
 }
+
+export enum VirtualInputBlockType {
+  Timer = 300,
+}
+
 export enum IOType { bool, number, image } // bool, number, image
 
 // permanent storage of data - where do we send it? likely just firebase?

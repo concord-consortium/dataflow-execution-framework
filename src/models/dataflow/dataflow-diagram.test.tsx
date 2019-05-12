@@ -6,11 +6,11 @@ import {
 } from "./dataflow-types";
 
 describe("Dataflow Block", () => {
-  const a = new DataflowBlock("sensor1", "a",
+  const a = new DataflowBlock("0", "sensor1",
     InputBlockType.Oxygen, "things", [1], 1, 1, IOType.number, IOType.number, 10);
-  const b = new DataflowBlock("sensor2", "b",
+  const b = new DataflowBlock("1", "sensor2",
     InputBlockType.Oxygen, "things2", [1], 1, 1, IOType.number, IOType.number, 15);
-  const c = new DataflowBlock("operator1", "c",
+  const c = new DataflowBlock("2", "operator1",
     LogicBlockType.Operator, "logic",
     [0, 1], 2, 1, IOType.number, IOType.number, "+");
   const diagram = new DataflowDiagram("test", "test", [a, b, c], 1);

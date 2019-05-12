@@ -2,6 +2,7 @@ import {
   Block,
   Diagram,
   InputBlockType,
+  VirtualInputBlockType,
   OutputBlockType,
   LogicBlockType,
   IOType,
@@ -50,17 +51,20 @@ export class DataflowDiagram implements Diagram {
   public getBlocksByType() {
     const blocks: DataflowBlock[] = [];
     const inputs: DataflowBlock[] = [];
+    const virtualInputs: DataflowBlock[] = [];
     const logic: DataflowBlock[] = [];
     const outputs: DataflowBlock[] = [];
     for (const b of this.blocks) {
       const dfBlock = DataflowBlock.create(b);
       blocks.push(dfBlock);
       if (dfBlock.isInput()) inputs.push(dfBlock);
+      if (dfBlock.isVirtualInput()) virtualInputs.push(dfBlock);
       if (dfBlock.isOutput()) outputs.push(dfBlock);
       if (dfBlock.isLogic()) logic.push(dfBlock);
     }
     return {
       inputs,
+      virtualInputs,
       logic,
       outputs,
       allBlocks: blocks
@@ -84,10 +88,10 @@ export class DataflowBlock implements Block {
       block.blockType,
       block.units,
       block.sources,
-      block.inputCount,
-      block.outputCount,
-      block.inputType,
-      block.outputType,
+      block.input_count ? block.input_count : block.inputCount,
+      block.output_count ? block.output_count : block.outputCount,
+      block.input_type ? block.input_type : block.inputType,
+      block.output_type ? block.output_type : block.outputType,
       block.value,
       block.view,
       block.params
@@ -110,6 +114,7 @@ export class DataflowBlock implements Block {
     "not": (a: number, b: number): number => a ? 0 : 1,
     "nand": (a: number, b: number): number => !(a && b) ? 1 : 0,
     "xor": (a: number, b: number): number =>  !(a && b) && (a || b) ? 1 : 0,
+    "abs": (a: number, b: number): number =>  Math.abs(a),
   };
 
   constructor(
@@ -130,6 +135,9 @@ export class DataflowBlock implements Block {
 
   public isInput() {
     return InputBlockType[this.blockType] !== undefined;
+  }
+  public isVirtualInput() {
+    return VirtualInputBlockType[this.blockType] !== undefined;
   }
   public isOutput() {
     return OutputBlockType[this.blockType] !== undefined;
@@ -152,10 +160,11 @@ export class DataflowBlock implements Block {
 
     // A logic block operates on inputs and produces a value
     else if (this.isLogic()) {
-      if (this.inputCount > 1 && diagram) {
+      if (this.inputCount > 0 && diagram) {
         const values: number[] = [];
         for (let i = 0; i < this.inputCount; i++) {
-          const inputValue = diagram.blocks[this.sources[i]].value;
+          const block = diagram.blocks.find( b => parseInt(b.id, 10) === this.sources[i] );
+          const inputValue = block && block.value;
           // since a value could be a number, string or null, verify we have values
           if (inputValue && typeof (inputValue) === "number") {
             values.push(inputValue);

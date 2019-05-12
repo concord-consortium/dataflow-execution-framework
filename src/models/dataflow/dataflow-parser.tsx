@@ -1,4 +1,4 @@
-import { InputBlockType, LogicBlockType, OutputBlockType } from "./dataflow-types";
+import { InputBlockType, LogicBlockType, OutputBlockType, VirtualInputBlockType } from "./dataflow-types";
 
 // convert from 2.0 format
 export const ParseImportedBlock = (importedType: string, importedValue: string) => {
@@ -24,6 +24,9 @@ export const ParseImportedBlock = (importedType: string, importedValue: string) 
     case "soilmoisture":
       blockType = InputBlockType.SoilMoisture;
       break;
+    case "particulates":
+      blockType = InputBlockType.ParticulateMatter;
+      break;
     case "number":
       blockType = InputBlockType.Number;
       break;
@@ -31,7 +34,7 @@ export const ParseImportedBlock = (importedType: string, importedValue: string) 
       blockType = InputBlockType.Number;
       break;
     case "timer":
-      blockType = LogicBlockType.Timer;
+      blockType = VirtualInputBlockType.Timer;
       break;
     case "relay":
       blockType = OutputBlockType.Relay;
@@ -74,6 +77,30 @@ export const ParseImportedBlock = (importedType: string, importedValue: string) 
       break;
     case "data storage":
       blockType = OutputBlockType.DataStorage;
+      break;
+    case "absolute value":
+      blockType = LogicBlockType.Operator;
+      blockValue = "abs";
+      break;
+    case "not":
+      blockType = LogicBlockType.Operator;
+      blockValue = "not";
+      break;
+    case "and":
+      blockType = LogicBlockType.Operator;
+      blockValue = "and";
+      break;
+    case "or":
+      blockType = LogicBlockType.Operator;
+      blockValue = "or";
+      break;
+    case "nand":
+      blockType = LogicBlockType.Operator;
+      blockValue = "nand";
+      break;
+    case "xor":
+      blockType = LogicBlockType.Operator;
+      blockValue = "xor";
       break;
     default:
       if (!!InputBlockType[importedType as any]) {

@@ -1,0 +1,260 @@
+{
+  "file_version": "0.1",
+  "blocks": [
+    {
+      "id": 1,
+      "name": "number",
+      "type": "number_entry",
+      "sources": [],
+      "input_count": 0,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 1,
+      "view": {
+        "x": 35,
+        "y": 35
+      }
+    },
+    {
+      "id": 2,
+      "name": "number",
+      "type": "number_entry",
+      "sources": [],
+      "input_count": 0,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 1,
+      "view": {
+        "x": 40,
+        "y": 70
+      }
+    },
+    {
+      "id": 3,
+      "name": "number",
+      "type": "number_entry",
+      "sources": [],
+      "input_count": 0,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 1,
+      "view": {
+        "x": 45,
+        "y": 105
+      }
+    },
+    {
+      "id": 4,
+      "name": "number",
+      "type": "number_entry",
+      "sources": [],
+      "input_count": 0,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 0,
+      "view": {
+        "x": 50,
+        "y": 140
+      }
+    },
+    {
+      "id": 5,
+      "name": "number",
+      "type": "number_entry",
+      "sources": [],
+      "input_count": 0,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 0,
+      "view": {
+        "x": 55,
+        "y": 175
+      }
+    },
+    {
+      "id": 6,
+      "name": "number",
+      "type": "number_entry",
+      "sources": [],
+      "input_count": 0,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 1,
+      "view": {
+        "x": 60,
+        "y": 210
+      }
+    },
+    {
+      "id": 7,
+      "name": "number",
+      "type": "number_entry",
+      "sources": [],
+      "input_count": 0,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 1,
+      "view": {
+        "x": 65,
+        "y": 245
+      }
+    },
+    {
+      "id": 8,
+      "name": "number",
+      "type": "number_entry",
+      "sources": [],
+      "input_count": 0,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 1,
+      "view": {
+        "x": 70,
+        "y": 280
+      }
+    },
+    {
+      "id": 9,
+      "name": "and",
+      "type": "and",
+      "sources": [
+        1,
+        2
+      ],
+      "input_count": 2,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 1,
+      "view": {
+        "x": 337,
+        "y": 45
+      }
+    },
+    {
+      "id": 10,
+      "name": "or",
+      "type": "or",
+      "sources": [
+        3,
+        4
+      ],
+      "input_count": 2,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 1,
+      "view": {
+        "x": 343,
+        "y": 101
+      }
+    },
+    {
+      "id": 11,
+      "name": "not",
+      "type": "not",
+      "sources": [
+        5
+      ],
+      "input_count": 1,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 1,
+      "view": {
+        "x": 347,
+        "y": 160
+      }
+    },
+    {
+      "id": 12,
+      "name": "nand",
+      "type": "nand",
+      "sources": [
+        6,
+        7
+      ],
+      "input_count": 2,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 0,
+      "view": {
+        "x": 351,
+        "y": 220
+      }
+    },
+    {
+      "id": 13,
+      "name": "xor",
+      "type": "xor",
+      "sources": [
+        8,
+        14
+      ],
+      "input_count": 2,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 0,
+      "view": {
+        "x": 355,
+        "y": 292
+      }
+    },
+    {
+      "id": 14,
+      "name": "number",
+      "type": "number_entry",
+      "sources": [],
+      "input_count": 0,
+      "output_count": 1,
+      "input_type": "n",
+      "output_type": "n",
+      "has_seq": false,
+      "params": [],
+      "value": 1,
+      "view": {
+        "x": 65,
+        "y": 325
+      }
+    }
+  ],
+  "archived": false,
+  "displayedName": "test",
+  "name": "program_20190509_141621"
+}
