@@ -1,5 +1,5 @@
 var AWS = require('aws-sdk');
-const dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
+const dynamoDocClient = new AWS.DynamoDB.DocumentClient();
 var lambda = new AWS.Lambda({
   region: 'us-east-1' //change to your region
 });
@@ -13,24 +13,27 @@ exports.handler = async (event) => {
     return;
   }
   for (let i = 0; i < programs.length; i++){
-    console.log("running: " + JSON.stringify(programs[i]));
-    console.log(programs[i]);
-    let nextRunTime = programs[i].nextRunTime ? programs[i].nextRunTime.N : 0;
-    let interval = programs[i].runInterval ? programs[i].runInterval.N : 1000;
+    console.log("running: " + JSON.stringify(programs[i].programId));
+    // console.log(programs[i]);
+    let nextRunTime = programs[i].nextRunTime ? programs[i].nextRunTime : 0;
+    let interval = programs[i].runInterval ? programs[i].runInterval : 1000;
     console.log("time since last run: " + (Date.now() - nextRunTime));
     if (Date.now() - nextRunTime > interval) {
       // update timestamp
       let resUpdate = await updateProgramNextRunTimestamp(programs[i].endTime);
-      let resExecute = lambda.invoke({
-        FunctionName: 'executeDataflowProgram',
-        Payload: JSON.stringify(event, programs[i]) // pass params
+      //console.log(resUpdate);
+      lambda.invoke({
+        FunctionName: 'arn:aws:lambda:us-east-1:816253370536:function:executeDataflowProgram',
+        Payload: JSON.stringify(programs[i]) // pass params
+        , LogType: 'Tail'
         , InvocationType: 'Event'
       }, function (error, data) {
+        console.log("invoke complete: ", error, data);
         if (error) {
           console.log('error', error);
         }
         if (data) {
-          console.log("success", JSON.stringify(data));
+          console.log("success");
         }
       });
     }
@@ -41,20 +44,21 @@ exports.handler = async (event) => {
 // though the chances of a program being created with the same timestamp to the ms are slim
 async function getActivePrograms() {
   return new Promise((resolve, reject) => {
-    let now = "" + Date.now();
     let params = {
       TableName: "dataflow-programs",
       KeyConditionExpression: "active = :v_active AND endTime > :v_now",
       ExpressionAttributeValues: {
-        ":v_active": {N: "1"},
-        ":v_now": {N: now}
+        ":v_active": 1,
+        ":v_now": Date.now()
       },
       ProjectionExpression: "programId, nextRunTime, endTime, runInterval, hubs, program, sensors"
     };
 
-    dynamodb.query(params, function(err, data) {
-      if (err)
-          console.log(err);
+    dynamoDocClient.query(params, function(err, data) {
+      if (err) {
+        console.log(err);
+        reject(err);
+      }
       else {
         resolve(data.Items);
       }
@@ -62,27 +66,27 @@ async function getActivePrograms() {
   });
 }
 
+
 async function updateProgramNextRunTimestamp(programTimestamp) {
   return new Promise((resolve, reject) => {
-    let now = "" + Date.now();
-    let endTime = "" + programTimestamp;
-    dynamodb.updateItem({
+    let params = {
       TableName: "dataflow-programs",
       Key: {
-        "active": {N: "1"},
-        "endTime": { N: endTime }
+        "active": 1,
+        "endTime": programTimestamp
       },
       UpdateExpression: "SET nextRunTime = :v_next",
       ExpressionAttributeValues: {
-        ":v_next": {N: now}
+        ":v_next": Date.now()
       },
       ReturnValues: "UPDATED_NEW"
-    }, function(err, data) {
+    };
+    dynamoDocClient.update(params, function(err, data) {
       if (err) {
         reject(err);
       } else {
         console.log("success!");
-        resolve();
+        resolve(data.Items);
       }
     });
   });

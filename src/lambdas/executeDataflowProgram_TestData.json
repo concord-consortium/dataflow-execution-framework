@@ -1,0 +1,9 @@
+{
+  "hubs": ["355aaff3-1b00-493a-b2ba-1df3673d7e73"],
+  "endTime":1565194992000,
+  "program":"\"{\"file_version\":\"0.1\",\"blocks\":[{\"type\":\"sensor\",\"source\":\"2711-tempe\",\"save\":true,\"label\":\"My temperature\"},{\"type\":\"sensor\",\"source\":\"2711-humid\",\"save\":true,\"label\":\"My humidity\"}]}\"",
+  "sensors":["2711-humid","2711-tempe","2712-CO2"],
+  "runInterval":2000,
+  "programId":"test-6",
+  "nextRunTime":1565027949981
+}
