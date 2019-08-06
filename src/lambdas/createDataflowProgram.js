@@ -2,9 +2,7 @@ const AWS = require('aws-sdk');
 const dynamoDocClient = new AWS.DynamoDB.DocumentClient();
 
 exports.handler = async (event) => {
-
   const program = event.program;
-
   console.log(program);
   await recordProgram(program);
   console.log("done");
