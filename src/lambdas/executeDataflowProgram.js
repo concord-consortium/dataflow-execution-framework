@@ -59,9 +59,9 @@ async function recordDataToTable(programId, sensorData) {
       TableName: "dataflow-data",
       Item: {
         "programId": programId,
-        "time": ("" + Date.now()),
-        "blockIds": blockIds,
-        "values": values
+        "time": Date.now(),
+        "blockIds": dynamoDocClient.createSet(blockIds),
+        "values": dynamoDocClient.createSet(values)
       }
     };
     dynamoDocClient.put(params, function(err, data) {
