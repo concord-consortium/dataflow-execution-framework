@@ -1,33 +1,37 @@
-var AWS = require('aws-sdk');
+const AWS = require('aws-sdk');
 const dynamoDocClient = new AWS.DynamoDB.DocumentClient();
 
-var iotAddress = "a2zxjwmcl3eyqd-ats.iot.us-east-1.amazonaws.com";
-var iotdata = new AWS.IotData({endpoint: iotAddress});
+const iotAddress = "a2zxjwmcl3eyqd-ats.iot.us-east-1.amazonaws.com";
+const iotdata = new AWS.IotData({endpoint: iotAddress});
 
 exports.handler = async (event) => {
 
   // run this for a single program
-  var program = event;
+  const program = event;
   console.log(program);
   if (!program.programId) program = JSON.parse(event);
   if (program.programId) {
-    var programId = program.programId;
-    // data has just one hub for now
-    var hubId = program.hubs[0];
-    var sensorIds = program.sensors;
+    const programId = program.programId;
+    const allProgramSensors = program.sensors;
+    const saveSensorData = [];
+    for (const hub of program.hubs) {
+      const sensorValues = await getShadowData(hub);
 
-    var sensorValues = await getShadowData(hubId);
-    console.log("sensor values:");
-    console.log(sensorValues);
+      console.log("sensor values for hub " + hub + " :");
+      console.log(sensorValues);
 
-    var saveSensorData = [];
-    for (var sensor of sensorIds) {
-      saveSensorData.push({ sensorId: sensor, value: sensorValues[sensor] });
+      for (const sensor of Object.keys(sensorValues)) {
+        const hubSensorName = hub + "_" + sensor;
+        if (allProgramSensors.indexOf(hubSensorName) > -1) {
+          saveSensorData.push({ sensorId: hubSensorName, value: sensorValues[sensor] });
+        }
+      }
     }
     console.log("saveSensorData:");
     console.log(saveSensorData);
-
-    await recordDataToTable(programId, saveSensorData);
+    if (saveSensorData.length > 0) {
+      await recordDataToTable(programId, saveSensorData);
+    }
   } else {
     return "finished program " + JSON.stringify(event);
   }
@@ -42,7 +46,7 @@ async function getShadowData(hubId) {
       if (err) {
         reject(err);
       } else {
-        var result = JSON.parse(data.payload);
+        const result = JSON.parse(data.payload);
         if (result && result.state && result.state.reported) {
           resolve(result.state.reported);
         }
@@ -53,9 +57,9 @@ async function getShadowData(hubId) {
 
 async function recordDataToTable(programId, sensorData) {
   return new Promise((resolve, reject) => {
-    var blockIds = sensorData.map(d => d.sensorId);
-    var values = sensorData.map(d => d.value)
-    let params = {
+    const blockIds = sensorData.map(d => d.sensorId);
+    const values = sensorData.map(d => d.value)
+    const params = {
       TableName: "dataflow-data",
       Item: {
         "programId": programId,

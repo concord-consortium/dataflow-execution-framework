@@ -1,12 +1,12 @@
-var AWS = require('aws-sdk');
+const AWS = require('aws-sdk');
 const dynamoDocClient = new AWS.DynamoDB.DocumentClient();
-var lambda = new AWS.Lambda({
+const lambda = new AWS.Lambda({
   region: 'us-east-1' //change to your region
 });
 
 exports.handler = async (event) => {
 
-  var programs = await getActivePrograms();
+  const programs = await getActivePrograms();
 
   if (!programs || programs.length === 0) {
     console.log("no active programs");
@@ -15,13 +15,13 @@ exports.handler = async (event) => {
   for (let i = 0; i < programs.length; i++){
     console.log("running: " + JSON.stringify(programs[i].programId));
     // console.log(programs[i]);
-    let nextRunTime = programs[i].nextRunTime ? programs[i].nextRunTime : 0;
-    let interval = programs[i].runInterval ? programs[i].runInterval : 1000;
+    const nextRunTime = programs[i].nextRunTime ? programs[i].nextRunTime : 0;
+    const interval = programs[i].runInterval ? programs[i].runInterval : 1000;
     console.log("time since last run: " + (Date.now() - nextRunTime));
     if (Date.now() - nextRunTime > interval) {
       // update timestamp
-      let resUpdate = await updateProgramNextRunTimestamp(programs[i].endTime);
-      //console.log(resUpdate);
+      await updateProgramNextRunTimestamp(programs[i].endTime);
+
       lambda.invoke({
         FunctionName: 'arn:aws:lambda:us-east-1:816253370536:function:executeDataflowProgram',
         Payload: JSON.stringify(programs[i]) // pass params
@@ -44,7 +44,7 @@ exports.handler = async (event) => {
 // though the chances of a program being created with the same timestamp to the ms are slim
 async function getActivePrograms() {
   return new Promise((resolve, reject) => {
-    let params = {
+    const params = {
       TableName: "dataflow-programs",
       KeyConditionExpression: "active = :v_active AND endTime > :v_now",
       ExpressionAttributeValues: {
@@ -66,10 +66,9 @@ async function getActivePrograms() {
   });
 }
 
-
 async function updateProgramNextRunTimestamp(programTimestamp) {
   return new Promise((resolve, reject) => {
-    let params = {
+    const params = {
       TableName: "dataflow-programs",
       Key: {
         "active": 1,
