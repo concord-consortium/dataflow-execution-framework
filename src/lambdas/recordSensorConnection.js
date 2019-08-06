@@ -5,23 +5,21 @@ exports.handler = async (event) => {
 
   const deviceId = event.deviceId;
   console.log(event);
-  if (deviceId && event.sensorData) {
-
-    await recordDataToTable(deviceId, event.time, event.sensorData);
+  if (deviceId) {
+    await recordDataToTable(deviceId, event.time);
   } else {
     return "finished program " + JSON.stringify(event);
   }
   console.log("done");
 };
 
-async function recordDataToTable(deviceId, time, sensorData) {
+async function recordDataToTable(deviceId, timestamp) {
   return new Promise((resolve, reject) => {
     const params = {
-      TableName: "dataflow-sensor-data",
+      TableName: "dataflow-device-connections",
       Item: {
         "deviceId": deviceId,
-        "time": Date.now(),
-        "sensorData": JSON.stringify(sensorData)
+        "time": timestamp
       }
     }
 
