@@ -26,7 +26,7 @@
           "Input.$": "$"
         }
       },
-      "Next": "Wait 1 Second",
+      "Next": "Remaining active programs?",
       "Catch": [
         {
           "ErrorEquals": [
@@ -35,6 +35,17 @@
           "Next": "Remove step function from DB"
         }
       ]
+    },
+    "Remaining active programs?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.count",
+          "NumericEquals": 0,
+          "Next": "Remove step function from DB"
+        }
+      ],
+      "Default": "Wait 1 Second"
     },
     "Wait 1 Second": {
       "Type": "Wait",
