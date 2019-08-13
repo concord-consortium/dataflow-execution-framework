@@ -21,7 +21,7 @@ async function recordProgram(program) {
         "hubs": dynamoDocClient.createSet(program.hubs),
         "sensors": dynamoDocClient.createSet(program.sensors),
         "runInterval": program.runInterval,
-        "program": program.program
+        "program": JSON.stringify(program.program)
       }
     };
     dynamoDocClient.put(params, function(err, data) {
