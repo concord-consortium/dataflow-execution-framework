@@ -21,12 +21,11 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
-        "FunctionName": "arn:aws:lambda:us-east-1:816253370536:function:findRunningPrograms:$LATEST",
-        "Payload": {
-          "Input.$": "$"
-        }
+        "FunctionName": "arn:aws:lambda:us-east-1:816253370536:function:findRunningPrograms:$LATEST"
       },
       "Next": "Remaining active programs?",
+      "ResultPath": "$.results",
+      "OutputPath": "$.results.Payload",
       "Catch": [
         {
           "ErrorEquals": [

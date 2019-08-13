@@ -4,7 +4,7 @@ const lambda = new AWS.Lambda({
   region: 'us-east-1' //change to your region
 });
 
-exports.handler = async (event) => {
+exports.handler = async (event, context, callback) => {
   const result = {
     count: 0
   };
@@ -42,7 +42,7 @@ exports.handler = async (event) => {
     }
   }
   console.log("done");
-  return JSON.stringify(result);
+  callback(null, result);
 };
 // Note that the endTime field in dataflow-programs was set as a key, so must be unique. This could potentially be a problem?
 // though the chances of a program being created with the same timestamp to the ms are slim
