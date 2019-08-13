@@ -1,0 +1,62 @@
+{
+  "StartAt": "Add step function to DB if none running",
+  "States": {
+    "Add step function to DB if none running": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:816253370536:function:checkIfStepFunctionIsExecuting:$LATEST"
+      },
+      "Next": "Execute all active programs",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "End"
+        }
+      ]
+    },
+    "Execute all active programs": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:816253370536:function:findRunningPrograms:$LATEST",
+        "Payload": {
+          "Input.$": "$"
+        }
+      },
+      "Next": "Wait 1 Second",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Remove step function from DB"
+        }
+      ]
+    },
+    "Wait 1 Second": {
+      "Type": "Wait",
+      "Seconds": 1,
+      "Next": "Execute all active programs"
+    },
+    "Remove step function from DB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:deleteItem",
+      "Parameters": {
+        "TableName": "dataflow-programs",
+        "Key": {
+          "active": {
+            "N": "2"
+          }
+        }
+      },
+     "End": true
+},
+    "End": {
+      "Type": "Pass",
+      "End": true
+    }
+  }
+}
