@@ -5,13 +5,16 @@ const lambda = new AWS.Lambda({
 });
 
 exports.handler = async (event) => {
-
+  const result = {
+    count: 0
+  };
   const programs = await getActivePrograms();
 
   if (!programs || programs.length === 0) {
     console.log("no active programs");
-    return;
+    return result;
   }
+  result.count = programs.length;
   for (let i = 0; i < programs.length; i++){
     console.log("running: " + JSON.stringify(programs[i].programId));
     // console.log(programs[i]);
@@ -28,17 +31,18 @@ exports.handler = async (event) => {
         , LogType: 'Tail'
         , InvocationType: 'Event'
       }, function (error, data) {
-        console.log("invoke complete: ", error, data);
+        // console.log("invoke complete: ", error, data);
         if (error) {
           console.log('error', error);
         }
-        if (data) {
-          console.log("success");
-        }
+        // if (data) {
+        //   console.log("success");
+        // }
       });
     }
   }
   console.log("done");
+  return result;
 };
 // Note that the endTime field in dataflow-programs was set as a key, so must be unique. This could potentially be a problem?
 // though the chances of a program being created with the same timestamp to the ms are slim
@@ -84,7 +88,7 @@ async function updateProgramNextRunTimestamp(programTimestamp) {
       if (err) {
         reject(err);
       } else {
-        console.log("success!");
+        // console.log("success!");
         resolve(data.Items);
       }
     });
