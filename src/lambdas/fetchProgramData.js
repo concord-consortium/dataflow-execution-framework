@@ -13,6 +13,7 @@ exports.handler = async (event, context, callback) => {
     console.log("no recorded data");
   } else {
     result.count = data.length;
+    result.data = data;
   }
   callback(null, result);
 };
