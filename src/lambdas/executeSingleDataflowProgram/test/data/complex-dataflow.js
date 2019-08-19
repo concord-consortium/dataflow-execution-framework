@@ -1,51 +1,12 @@
-{
+module.exports = {
   "id": "dataflow@0.1.0",
   "nodes": {
-    "1": {
-      "id": 1,
-      "data": {
-        "datasetName": "my-dataset",
-        "interval": 1,
-        "sequence1": "my-sequence",
-        "nodeValue": {
-          "num1": {
-            "name": "sequence",
-            "val": 23.8
-          }
-        },
-        "sequence2": "my-sequence",
-        "inputKeys": [
-          "num1",
-          "num2"
-        ]
-      },
-      "inputs": {
-        "num1": {
-          "connections": [
-            {
-              "node": "temp-id",
-              "output": "num",
-              "data": {}
-            }
-          ]
-        },
-        "num2": {
-          "connections": []
-        }
-      },
-      "outputs": {},
-      "position": [
-        535.5947698883008,
-        251.7583269582775
-      ],
-      "name": "Data Storage"
-    },
     "temp-id": {
       "id": "temp-id",
       "data": {
         "type": "temperature",
         "sensor": "7E6FEE58-tempe",
-        "nodeValue": 23.8
+        "nodeValue": 23.9
       },
       "inputs": {},
       "outputs": {
@@ -53,11 +14,6 @@
           "connections": [
             {
               "node": "add-id",
-              "input": "num1",
-              "data": {}
-            },
-            {
-              "node": 1,
               "input": "num1",
               "data": {}
             }
@@ -106,8 +62,7 @@
         },
         "mathOperator": "add",
         "num1": 0,
-        "num2": 0,
-        "nodeValue": 25.8
+        "num2": 0
       },
       "inputs": {
         "num1": {
@@ -186,8 +141,8 @@
         "generatorType": "sine",
         "amplitude": 1,
         "period": 10,
-        "nodeValue": -0.95,
-        "ticks": 14
+        "nodeValue": 0.31,
+        "ticks": 9
       },
       "inputs": {},
       "outputs": {
@@ -216,7 +171,7 @@
         },
         "transformOperator": "absolute value",
         "num1": 0,
-        "nodeValue": 0.95
+        "nodeValue": 0.31
       },
       "inputs": {
         "num1": {
@@ -241,4 +196,4 @@
       "name": "Transform"
     }
   }
-}
+};
