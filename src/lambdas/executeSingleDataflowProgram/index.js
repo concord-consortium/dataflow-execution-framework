@@ -11,6 +11,7 @@ var runDataflowProgram = require('./dataflow-engine-runner');
  * @param {string} event.program.programId Unique ID of the program run
  * @param {JSON | object} event.program.program Rete network to run
  * @param {object} event.sensorData Map of sensor name keys and sensor values
+ * @param {number} event.dataSaveTime Timestamp of next time data should be saved
  */
 exports.handler = async (event) => {
 
@@ -32,7 +33,9 @@ exports.handler = async (event) => {
   if (!result.success) {
     console.error("Failed to run program: ", programId);
   }
-  await recordDataToTable(programId, result.savedNodeValues);
+  if (Date.now() > event.dataSaveTime) {
+    await recordDataToTable(programId, result.savedNodeValues);
+  }
 };
 
 async function recordDataToTable(programId, sensorData) {

@@ -40,9 +40,18 @@ exports.handler = async (event, context, callback) => {
     for (let i = 0; i < programs.length; i++){
       console.log("running: " + programs[i].programId);
 
+      // pass down next dataSaveTime, and update the time if necessary
+      const dataSaveTime = programs[i].nextRunTime ? programs[i].nextRunTime : 0;
+      if (Date.now() > dataSaveTime) {
+        const saveDataInterval = Math.max(programs[i].runInterval || 0, 1000);
+        const nextDataSaveTime = Date.now() + saveDataInterval;
+        updateProgramNextRunTimestamp(programs[i].endTime, nextDataSaveTime);
+      }
+
       const event = {
         program: programs[i],
-        sensorData: allSensorData
+        sensorData: allSensorData,
+        dataSaveTime
       };
 
       lambda.invoke({
@@ -51,7 +60,6 @@ exports.handler = async (event, context, callback) => {
         , LogType: 'Tail'
         , InvocationType: 'Event'
       }, function (error, data) {
-        // console.log("invoke complete: ", error, data);
         if (error) {
           console.log('error', error);
         }
@@ -105,7 +113,7 @@ async function getShadowData(hubId) {
   });
 }
 
-async function updateProgramNextRunTimestamp(programTimestamp) {
+async function updateProgramNextRunTimestamp(programTimestamp, nextDataSaveTime) {
   return new Promise((resolve, reject) => {
     const params = {
       TableName: "dataflow-programs",
@@ -115,7 +123,7 @@ async function updateProgramNextRunTimestamp(programTimestamp) {
       },
       UpdateExpression: "SET nextRunTime = :v_next",
       ExpressionAttributeValues: {
-        ":v_next": Date.now()
+        ":v_next": nextDataSaveTime
       },
       ReturnValues: "UPDATED_NEW"
     };
