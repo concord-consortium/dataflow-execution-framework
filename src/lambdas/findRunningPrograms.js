@@ -21,10 +21,10 @@ exports.handler = async (event, context, callback) => {
     // first collect all the sensor data we need
     const allSensorData = {};
     const allHubs = [];
-    programs.forEach(p => allHubs.push.apply(allHubs, p.hubs));
+    programs.forEach(p => allHubs.push.apply(allHubs, p.hubs.values));
     const uniqueHubs = [...new Set(allHubs)];
 
-    for (const i = 0; i < uniqueHubs.length; i++) {
+    for (let i = 0; i < uniqueHubs.length; i++) {
       const sensorValues = await getShadowData(uniqueHubs[i]);
 
       for (const sensor of Object.keys(sensorValues)) {
