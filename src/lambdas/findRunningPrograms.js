@@ -4,6 +4,9 @@ const lambda = new AWS.Lambda({
   region: 'us-east-1' //change to your region
 });
 
+const iotAddress = "a2zxjwmcl3eyqd-ats.iot.us-east-1.amazonaws.com";
+const iotdata = new AWS.IotData({endpoint: iotAddress});
+
 exports.handler = async (event, context, callback) => {
   const result = {
     count: 0
@@ -14,36 +17,51 @@ exports.handler = async (event, context, callback) => {
     console.log("no active programs");
   } else {
     result.count = programs.length;
-    for (let i = 0; i < programs.length; i++){
-      console.log("running: " + JSON.stringify(programs[i].programId));
-      // console.log(programs[i]);
-      const nextRunTime = programs[i].nextRunTime ? programs[i].nextRunTime : 0;
-      const interval = programs[i].runInterval ? programs[i].runInterval : 1000;
-      console.log("time since last run: " + (Date.now() - nextRunTime));
-      if (Date.now() - nextRunTime > interval) {
-        // update timestamp
-        await updateProgramNextRunTimestamp(programs[i].endTime);
 
-        lambda.invoke({
-          FunctionName: 'arn:aws:lambda:us-east-1:816253370536:function:executeDataflowProgram',
-          Payload: JSON.stringify(programs[i]) // pass params
-          , LogType: 'Tail'
-          , InvocationType: 'Event'
-        }, function (error, data) {
-          // console.log("invoke complete: ", error, data);
-          if (error) {
-            console.log('error', error);
-          }
-          // if (data) {
-          //   console.log("success");
-          // }
-        });
+    // first collect all the sensor data we need
+    const allSensorData = {};
+    const allHubs = [];
+    programs.forEach(p => allHubs.push.apply(allHubs, p.hubs));
+    const uniqueHubs = [...new Set(allHubs)];
+
+    for (const i = 0; i < uniqueHubs.length; i++) {
+      const sensorValues = await getShadowData(uniqueHubs[i]);
+
+      for (const sensor of Object.keys(sensorValues)) {
+        allSensorData[sensor] = sensorValues[sensor];
       }
+    }
+
+    console.log("all sensor data:");
+    console.log(JSON.stringify(allSensorData));
+
+    // run all the programs, passing in the sensor data
+
+    for (let i = 0; i < programs.length; i++){
+      console.log("running: " + programs[i].programId);
+
+      const event = {
+        program: programs[i],
+        sensorData: allSensorData
+      };
+
+      lambda.invoke({
+        FunctionName: 'arn:aws:lambda:us-east-1:816253370536:function:executeSingleDataflowProgram',
+        Payload: JSON.stringify(event) // pass params
+        , LogType: 'Tail'
+        , InvocationType: 'Event'
+      }, function (error, data) {
+        // console.log("invoke complete: ", error, data);
+        if (error) {
+          console.log('error', error);
+        }
+      });
     }
   }
   console.log("done");
   callback(null, result);
 };
+
 // Note that the endTime field in dataflow-programs was set as a key, so must be unique. This could potentially be a problem?
 // though the chances of a program being created with the same timestamp to the ms are slim
 async function getActivePrograms() {
@@ -65,6 +83,23 @@ async function getActivePrograms() {
       }
       else {
         resolve(data.Items);
+      }
+    });
+  });
+}
+
+async function getShadowData(hubId) {
+  return new Promise((resolve, reject) => {
+    iotdata.getThingShadow({
+      thingName: hubId
+    }, function(err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        const result = JSON.parse(data.payload);
+        if (result && result.state && result.state.reported) {
+          resolve(result.state.reported);
+        }
       }
     });
   });
