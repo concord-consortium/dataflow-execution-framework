@@ -33,22 +33,23 @@ exports.handler = async (event) => {
   if (!result.success) {
     console.error("Failed to run program: ", programId);
   }
-  if (Date.now() > event.dataSaveTime) {
+
+  if (result.savedNodeValues.length && Date.now() > event.dataSaveTime) {
     await recordDataToTable(programId, result.savedNodeValues);
   }
 };
 
-async function recordDataToTable(programId, sensorData) {
+async function recordDataToTable(programId, nodeValues) {
   return new Promise((resolve, reject) => {
-    const blockIds = sensorData.map(d => d.node);
-    const values = sensorData.map(d => d.value * 1) // cast to ensure all numbers
+    const blockIds = nodeValues.map(d => d.node);
+    const values = nodeValues.map(d => d.value * 1) // cast to ensure all numbers
     const params = {
       TableName: "dataflow-data",
       Item: {
         "programId": programId,
         "time": Date.now(),
-        "blockIds": dynamoDocClient.createSet(blockIds),
-        "values": dynamoDocClient.createSet(values)
+        "blockIds": blockIds,
+        "values": values
       }
     };
     dynamoDocClient.put(params, function(err, data) {
