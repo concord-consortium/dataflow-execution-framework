@@ -1,6 +1,11 @@
 const AWS = require('aws-sdk');
 const dynamoDocClient = new AWS.DynamoDB.DocumentClient();
+const iotAddress = "a2zxjwmcl3eyqd-ats.iot.us-east-1.amazonaws.com";
+const iotdata = new AWS.IotData({endpoint: iotAddress});
+
 var runDataflowProgram = require('./dataflow-engine-runner');
+
+const OWNER_ID = "123";
 
 /**
  * Executes a single dataflow program, given both a program definiton (as JSON or an object) and
@@ -34,6 +39,12 @@ exports.handler = async (event) => {
     console.error("Failed to run program: ", programId);
   }
 
+  if (result.relayValues.length) {
+    await sendMessagesToRelays(result.relayValues, event.program.hubs);
+  }
+
+  console.log("result.savedNodeValues.length", result.savedNodeValues.length);
+  console.log("event.dataSaveTime", event.dataSaveTime);
   if (result.savedNodeValues.length && Date.now() > event.dataSaveTime) {
     await recordDataToTable(programId, result.savedNodeValues);
   }
@@ -62,4 +73,37 @@ async function recordDataToTable(programId, nodeValues) {
       }
     });
   });
+}
+
+async function sendMessagesToRelays(relayValues, hubs) {
+  const relayPromises = [];
+  relayValues.forEach(rv => {
+    // we should update the program to know which hub this belongs to.
+    // until then, we broadcast this to all hubs associated with this program
+    hubs.forEach(hubId => {
+      const topic = createTopic(OWNER_ID, hubId, "actuators");
+      const message = JSON.stringify({[rv.relay]: rv.value});
+      var params = {
+        topic,
+        payload: message,
+        qos: 1
+      };
+
+      console.log("sending to ", topic, ": ", message);
+
+      const request = iotdata.publish(params);
+      relayPromises.push(request.promise());
+    });
+  });
+
+  return Promise.all(relayPromises).then(function() {
+    // success
+  }, function(error) {
+    console.log("relay error");
+    console.error(error);
+  });
+}
+
+function createTopic(ownerID, hubId, topic) {
+  return (`${ownerID}/hub/${hubId}/${topic}`);
 }
