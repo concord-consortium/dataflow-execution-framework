@@ -21,7 +21,8 @@ exports.handler = async (event, context, callback) => {
     // first collect all the sensor data we need
     const allSensorData = {};
     const allHubs = [];
-    programs.forEach(p => allHubs.push.apply(allHubs, p.hubs.values));
+
+    programs.forEach(p => allHubs.push.apply(allHubs, p.hubs));
     const uniqueHubs = [...new Set(allHubs)];
 
     for (let i = 0; i < uniqueHubs.length; i++) {

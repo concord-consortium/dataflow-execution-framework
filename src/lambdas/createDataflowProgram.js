@@ -18,8 +18,8 @@ async function recordProgram(program) {
         "endTime": program.endTime,
         "programId": program.programId,
         "nextRunTime": nextRunTime,
-        "hubs": dynamoDocClient.createSet(program.hubs),
-        "sensors": dynamoDocClient.createSet(program.sensors),
+        "hubs": program.hubs,
+        "sensors": program.sensors,
         "runInterval": program.runInterval,
         "program": JSON.stringify(program.program)
       }
