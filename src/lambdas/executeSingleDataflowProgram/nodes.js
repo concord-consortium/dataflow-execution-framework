@@ -239,7 +239,9 @@ class RelayReteNodeFactory extends rete.Component {
 
   worker(node, inputs, outputs) {
     const n1 = inputs.num1.length ? inputs.num1[0] : node.data.num1;
-    const result = n1 !== 0;
+    const result = n1 !== 0 ? 1 : 0;
+
+    outputs.num = result;
   }
 }
 

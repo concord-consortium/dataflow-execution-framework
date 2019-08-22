@@ -11,11 +11,13 @@ var nodes = require('./nodes');
  *
  * @returns {boolean} ret.success Whether the program ran correctly in rete
  * @returns {{node: string, value: number}[]} ret.savedNodeValues Array of objects containing node names and values
+ * @returns {{relay: stringm value: number}[]} ret.relayValues Array of relay device ids and values
  */
 module.exports = async function(programDef, sensorData) {
   setSensorValues(programDef, sensorData);
 
   const nodesToSave = getNodesToSave(programDef);
+  const relays = getRelayNodes(programDef);
 
   const engine = getDataflowEngine();
   const result = await engine.process(programDef);
@@ -27,10 +29,12 @@ module.exports = async function(programDef, sensorData) {
   }
 
   const savedNodeValues = nodesToSave.map(id => ({node: id, value: engine.data.nodes[id].outputData.num}));
+  const relayValues = relays.map(({id, relay}) => ({relay: relay, value: engine.data.nodes[id].outputData.num}));
 
   return {
     success: true,
-    savedNodeValues
+    savedNodeValues,
+    relayValues
   }
 }
 
@@ -83,4 +87,15 @@ function getNodesToSave(programDef) {
   }
 
   return nodesToSave;
+}
+
+function getRelayNodes(programDef) {
+  const relays = [];
+  for (const id in programDef.nodes) {
+    const node = programDef.nodes[id];
+    if (node.name === "Relay") {
+      relays.push({id, relay: node.data.relayList});
+    }
+  }
+  return relays;
 }
