@@ -22,6 +22,6 @@
   },
   "linterOptions":{
     "exclude":[
-    "./src/lambdas/*"
-  ],}
+    "./src/lambdas/**/*"
+  ]}
 }
