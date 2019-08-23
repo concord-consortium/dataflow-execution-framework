@@ -1,4 +1,5 @@
 var assert = require('assert');
+var lolex = require("lolex");
 var polyfill = require('@babel/polyfill');
 var rete = require('rete');
 var nodes = require('../nodes');
@@ -78,6 +79,52 @@ describe('Engine', () => {
     it('calculates the math node correctly', async () => {
       await engine.process(dataStorageProgram);
       assert.equal(engine.data.nodes["add-id"].outputData.num, 25.9);
+    });
+  });
+
+  describe('generator nodes', async () => {
+    let engine;
+    let clock;
+
+    beforeEach(() => {
+      engine = createValidEngine()
+
+      clock = lolex.install({now: 0});      // start global Date clock to 0
+    })
+
+    it('calculates the sine node correctly', async () => {
+      const period = 10;
+      const sineProgram = {
+        id:"dataflow@0.1.0",
+        nodes: {
+          "sine-wave": {
+            id: "sine-wave",
+            data: {
+              generatorType: "sine",
+              amplitude: 1,
+              period,
+              nodeValue: 0.95
+            },
+            inputs: {},
+            outputs: {
+              num: {
+                connections: []
+              }
+            },
+            name: "Generator"
+          }
+        }
+      };
+
+      await engine.process(sineProgram);
+      assert.equal(engine.data.nodes["sine-wave"].outputData.num, 0);
+
+      const newTime = 2000;
+      clock.tick(newTime);
+
+      const expectedVal = Math.round(Math.sin(newTime * Math.PI / (period * 1000)) * 1 * 100) / 100;
+      await engine.process(sineProgram);
+      assert.equal(engine.data.nodes["sine-wave"].outputData.num, expectedVal);
     });
   });
 });

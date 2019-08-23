@@ -105,6 +105,25 @@ const NodeOperationTypes = [
   }
 ];
 
+const NodeGeneratorTypes = [
+  {
+    name: "sine",
+    method: (t, p, a) => Math.round(Math.sin(t * Math.PI / (p / 2)) * a * 100) / 100,
+  },
+  {
+    name: "square",
+    method: (t, p, a) => t % p < p / 2 ? 1 * a : 0,
+  },
+  {
+    name: "triangle",
+    method: (t, p, a) => (2 * a / p) * Math.abs(t % p - p / 2),
+  },
+  {
+    name: "noise",
+    method: (t, p, a) => Math.random() * a,
+  },
+];
+
 class NumberReteNodeFactory extends rete.Component {
   constructor(numSocket) {
     super("Number", numSocket);
@@ -258,7 +277,19 @@ class GeneratorReteNodeFactory extends rete.Component {
   }
 
   worker(node, inputs, outputs) {
-    outputs.num = node.data.nodeValue;
+    const generatorType = node.data.generatorType;
+    const period = Number(node.data.period) * 1000; // period is given in s, but we're passing in ms
+    const amplitude = Number(node.data.amplitude);
+
+    const nodeGeneratorType = NodeGeneratorTypes.find(gt => gt.name === generatorType);
+
+    let val = 0;
+    if (nodeGeneratorType && period && amplitude) {
+      const time = Date.now();
+      val = nodeGeneratorType.method(time, period, amplitude);
+    }
+
+    outputs.num = val;
   }
 }
 

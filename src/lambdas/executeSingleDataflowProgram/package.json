@@ -11,6 +11,7 @@
     "rete": "^1.4.1-rc.2"
   },
   "devDependencies": {
+    "lolex": "^4.2.0",
     "mocha": "^6.2.0"
   }
 }
