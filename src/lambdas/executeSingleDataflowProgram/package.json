@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "build": "zip -r executeSingleDataflowProgram.zip ."
+    "prebuild": "rm -rf ./node_modules && npm install --only=prod",
+    "build": "zip -r executeSingleDataflowProgram.zip .",
+    "postbuild": "npm install"
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
