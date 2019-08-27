@@ -10,7 +10,7 @@ exports.handler = async (event) => {
 
 async function recordProgram(program) {
   return new Promise((resolve, reject) => {
-    const nextRunTime = Date.now() + program.runInterval;
+    const nextRunTime = Date.now();
     const params = {
       TableName: "dataflow-programs",
       Item: {
