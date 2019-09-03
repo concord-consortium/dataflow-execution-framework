@@ -86,7 +86,7 @@ async function sendMessagesToRelays(relayValues, hubs) {
       var params = {
         topic,
         payload: message,
-        qos: 1
+        qos: 0
       };
 
       console.log("sending to ", topic, ": ", message);
