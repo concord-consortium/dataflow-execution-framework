@@ -44,12 +44,7 @@
           "Next": "Delete stale programs from DB"
         }
       ],
-      "Default": "Wait 1 Second"
-    },
-    "Wait 1 Second": {
-      "Type": "Wait",
-      "Seconds": 1,
-      "Next": "Execute all active programs"
+      "Default": "Execute all active programs"
     },
     "Delete stale programs from DB": {
       "Type": "Task",
