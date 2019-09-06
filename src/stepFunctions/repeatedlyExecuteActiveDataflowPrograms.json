@@ -7,7 +7,7 @@
       "Parameters": {
         "FunctionName": "arn:aws:lambda:us-east-1:816253370536:function:checkIfStepFunctionIsExecuting:$LATEST"
       },
-      "Next": "Execute all active programs",
+      "Next": "Initialize Iterator Count",
       "Catch": [
         {
           "ErrorEquals": [
@@ -17,6 +17,17 @@
         }
       ]
     },
+    "Initialize Iterator Count": {
+      "Type": "Pass",
+      "Result": {
+          "index": 0,
+          "step": 15,
+          "max": 20000,
+          "StateMachineArn": "arn:aws:states:us-east-1:816253370536:stateMachine:repeatedlyExecuteActiveDataflowPrograms"
+      },
+      "ResultPath": "$.iterator",
+      "Next": "Execute all active programs"
+    },
     "Execute all active programs": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
@@ -25,7 +36,6 @@
       },
       "Next": "Remaining active programs?",
       "ResultPath": "$.results",
-      "OutputPath": "$.results.Payload",
       "Catch": [
         {
           "ErrorEquals": [
@@ -39,12 +49,29 @@
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.count",
+          "Variable": "$.results.Payload.count",
           "NumericEquals": 0,
           "Next": "Delete stale programs from DB"
         }
       ],
-      "Default": "Execute all active programs"
+      "Default": "Increment iterator"
+    },
+    "Increment iterator": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:816253370536:function:Iterator",
+      "ResultPath": "$.iterator",
+      "Next": "Is count reached?"
+    },
+    "Is count reached?": {
+      "Type": "Choice",
+      "Choices": [
+          {
+              "Variable": "$.iterator.continue",
+              "BooleanEquals": true,
+              "Next": "Execute all active programs"
+          }
+      ],
+      "Default": "Remove step function from DB and restart"
     },
     "Delete stale programs from DB": {
       "Type": "Task",
@@ -68,8 +95,30 @@
           }
         }
       },
-     "End": true
-},
+      "Next": "End"
+    },
+    "Remove step function from DB and restart": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:deleteItem",
+      "Parameters": {
+        "TableName": "dataflow-programs",
+        "Key": {
+          "active": {
+            "N": "2"
+          },
+          "endTime": {
+            "N": "0"
+          }
+        }
+      },
+      "ResultPath": "$.throwAway",
+      "Next": "Restart"
+    },
+    "Restart": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:816253370536:function:restartStepFunction",
+      "Next": "End"
+    },
     "End": {
       "Type": "Pass",
       "End": true
