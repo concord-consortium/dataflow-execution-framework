@@ -3,7 +3,7 @@ var sfn = new aws.StepFunctions();
 
 exports.handler = function(event, context, callback) {
 
-  let StateMachineArn = event.iterator.StateMachineArn;
+  let StateMachineArn = event.StateMachineArn;
   event = JSON.stringify(event);
 
   let params = {

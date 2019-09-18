@@ -10,7 +10,6 @@ exports.handler = function iterator (event, context, callback) {
     index,
     step,
     max,
-    continue: index < max,
-    StateMachineArn
+    continue: index < max
   });
 }

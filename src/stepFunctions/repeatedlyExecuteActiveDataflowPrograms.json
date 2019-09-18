@@ -7,7 +7,7 @@
       "Parameters": {
         "FunctionName": "arn:aws:lambda:us-east-1:816253370536:function:checkIfStepFunctionIsExecuting:$LATEST"
       },
-      "Next": "Initialize Iterator Count",
+      "Next": "Initialize step count",
       "Catch": [
         {
           "ErrorEquals": [
@@ -17,15 +17,24 @@
         }
       ]
     },
-    "Initialize Iterator Count": {
+    "Initialize step count": {
       "Type": "Pass",
       "Result": {
           "index": 0,
-          "step": 15,
-          "max": 20000,
-          "StateMachineArn": "arn:aws:states:us-east-1:816253370536:stateMachine:repeatedlyExecuteActiveDataflowPrograms"
+          "step": 18,
+          "max": 20000
       },
-      "ResultPath": "$.iterator",
+      "ResultPath": "$.steps",
+      "Next": "Reset error count"
+    },
+    "Reset error count": {
+      "Type": "Pass",
+      "Result": {
+          "index": 0,
+          "step": 1,
+          "max": 5
+      },
+      "ResultPath": "$.errors",
       "Next": "Execute all active programs"
     },
     "Execute all active programs": {
@@ -41,7 +50,8 @@
           "ErrorEquals": [
             "States.ALL"
           ],
-          "Next": "Remove step function from DB"
+          "ResultPath": "$.results",
+          "Next": "Increment error count"
         }
       ]
     },
@@ -54,21 +64,28 @@
           "Next": "Delete stale programs from DB"
         }
       ],
-      "Default": "Increment iterator"
+      "Default": "Increment step count"
     },
-    "Increment iterator": {
+    "Increment step count": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:us-east-1:816253370536:function:Iterator",
-      "ResultPath": "$.iterator",
+      "Parameters": {
+        "iterator": {
+          "index.$": "$.steps.index",
+          "step.$": "$.steps.step",
+          "max.$": "$.steps.max"
+        }
+      },
+      "ResultPath": "$.steps",
       "Next": "Is count reached?"
     },
     "Is count reached?": {
       "Type": "Choice",
       "Choices": [
           {
-              "Variable": "$.iterator.continue",
+              "Variable": "$.steps.continue",
               "BooleanEquals": true,
-              "Next": "Execute all active programs"
+              "Next": "Reset error count"
           }
       ],
       "Default": "Remove step function from DB and restart"
@@ -80,6 +97,30 @@
         "FunctionName": "arn:aws:lambda:us-east-1:816253370536:function:deleteAllStalePrograms:$LATEST"
       },
       "Next": "Remove step function from DB"
+    },
+    "Increment error count": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:816253370536:function:Iterator",
+      "Parameters": {
+        "iterator": {
+          "index.$": "$.errors.index",
+          "step.$": "$.errors.step",
+          "max.$": "$.errors.max"
+        }
+      },
+      "ResultPath": "$.errors",
+      "Next": "Is error max reached?"
+    },
+    "Is error max reached?": {
+      "Type": "Choice",
+      "Choices": [
+          {
+              "Variable": "$.errors.continue",
+              "BooleanEquals": true,
+              "Next": "Execute all active programs"
+          }
+      ],
+      "Default": "Remove step function from DB"
     },
     "Remove step function from DB": {
       "Type": "Task",
@@ -116,6 +157,9 @@
     },
     "Restart": {
       "Type": "Task",
+      "Parameters": {
+        "StateMachineArn": "arn:aws:states:us-east-1:816253370536:stateMachine:repeatedlyExecuteActiveDataflowPrograms"
+      },
       "Resource": "arn:aws:lambda:us-east-1:816253370536:function:restartStepFunction",
       "Next": "End"
     },
