@@ -1,8 +1,5 @@
 const AWS = require('aws-sdk');
 const dynamoDocClient = new AWS.DynamoDB.DocumentClient();
-const lambda = new AWS.Lambda({
-  region: 'us-east-1' //change to your region
-});
 
 exports.handler = async (event, context, callback) => {
   const programs = await getStalePrograms();
@@ -10,19 +7,20 @@ exports.handler = async (event, context, callback) => {
   if (!programs || programs.length === 0) {
     callback(null);
   } else {
-    const itemsToDelete = [];
-    for (let i = 0; i < programs.length; i++) {
-      itemsToDelete.push({
+    const allDeletionRequests = programs.map(program => (
+      {
         DeleteRequest : {
           Key : {
             active: 1,
-            endTime: programs[i].endTime
+            endTime: program.endTime
           }
         }
-      });
-    }
-    while (itemsToDelete.length > 0) {
-      const deletionBatch = itemsToDelete.splice(0, 25);
+      }
+    ));
+
+    while (allDeletionRequests.length > 0) {
+      // `batchWrite` can only handle 25 items at a time
+      const deletionBatch = allDeletionRequests.splice(0, 25);
 
       var params = {
         RequestItems : {
@@ -61,7 +59,7 @@ async function getStalePrograms() {
         reject(err);
       }
       else {
-        console.log(data.Items);
+        console.log(`found ${data.Items.length} stale programs`);
         resolve(data.Items);
       }
     });
