@@ -12,7 +12,6 @@ exports.handler = async (event, context, callback) => {
   } else {
     const itemsToDelete = [];
     for (let i = 0; i < programs.length; i++) {
-      console.log(programs[i].endTime);
       itemsToDelete.push({
         DeleteRequest : {
           Key : {
@@ -22,20 +21,24 @@ exports.handler = async (event, context, callback) => {
         }
       });
     }
-    var params = {
-      RequestItems : {
-        "dataflow-programs": itemsToDelete
-      }
-    };
+    while (itemsToDelete.length > 0) {
+      const deletionBatch = itemsToDelete.splice(0, 25);
 
-    dynamoDocClient.batchWrite(params, function(err) {
-      if (err) {
-          console.log(err);
-          console.log('Batch delete unsuccessful ...');
-      } else {
-          console.log('Batch delete successful ...');
-      }
-    });
+      var params = {
+        RequestItems : {
+          "dataflow-programs": deletionBatch
+        }
+      };
+
+      dynamoDocClient.batchWrite(params, function(err) {
+        if (err) {
+            console.log(err);
+            console.log('Batch delete unsuccessful ...');
+        } else {
+            console.log('Batch delete successful ...');
+        }
+      });
+    }
   }
   callback(null);
 };
@@ -58,6 +61,7 @@ async function getStalePrograms() {
         reject(err);
       }
       else {
+        console.log(data.Items);
         resolve(data.Items);
       }
     });
