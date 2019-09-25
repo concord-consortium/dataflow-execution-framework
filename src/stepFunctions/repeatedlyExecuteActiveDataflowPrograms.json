@@ -22,7 +22,7 @@
       "Result": {
           "index": 0,
           "step": 18,
-          "max": 20000
+          "max": 10000
       },
       "ResultPath": "$.steps",
       "Next": "Reset error count"
