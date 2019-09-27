@@ -50,7 +50,7 @@
           "ErrorEquals": [
             "States.ALL"
           ],
-          "ResultPath": "$.remainingActiveProgramsError",
+          "ResultPath": "$.executeAllActiveProgramsError",
           "Next": "Increment error count"
         }
       ]
@@ -105,6 +105,21 @@
       "Parameters": {
         "FunctionName": "arn:aws:lambda:us-east-1:816253370536:function:deleteAllStalePrograms:$LATEST"
       },
+      "Retry": [
+        {
+          "ErrorEquals": [ "States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 5,
+          "BackoffRate": 1.5
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [ "States.All"],
+          "ResultPath": "$.deleteStaleProgramsError",
+          "Next": "Remove step function from DB"
+        }
+      ],
       "Next": "Remove step function from DB"
     },
     "Increment error count": {
@@ -118,16 +133,22 @@
         }
       },
       "ResultPath": "$.errors",
-      "Next": "Is error max reached?",
+      "Retry": [
+        {
+          "ErrorEquals": [ "States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 5,
+          "BackoffRate": 1.5
+        }
+      ],
       "Catch": [
         {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
+          "ErrorEquals": [ "States.All"],
           "ResultPath": "$.incrementErrorCountError",
           "Next": "Remove step function from DB"
         }
-      ]
+      ],
+      "Next": "Is error max reached?"
     },
     "Is error max reached?": {
       "Type": "Choice",
@@ -154,6 +175,14 @@
           }
         }
       },
+      "Retry": [
+        {
+          "ErrorEquals": [ "States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 5,
+          "BackoffRate": 1.5
+        }
+      ],
       "Next": "End"
     },
     "Remove step function from DB and restart": {
@@ -170,6 +199,14 @@
           }
         }
       },
+      "Retry": [
+        {
+          "ErrorEquals": [ "States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 5,
+          "BackoffRate": 1.5
+        }
+      ],
       "ResultPath": "$.throwAway",
       "Next": "Restart"
     },
@@ -179,6 +216,14 @@
         "StateMachineArn": "arn:aws:states:us-east-1:816253370536:stateMachine:repeatedlyExecuteActiveDataflowPrograms"
       },
       "Resource": "arn:aws:lambda:us-east-1:816253370536:function:restartStepFunction",
+      "Retry": [
+        {
+          "ErrorEquals": [ "States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 5,
+          "BackoffRate": 1.5
+        }
+      ],
       "Next": "End"
     },
     "End": {
