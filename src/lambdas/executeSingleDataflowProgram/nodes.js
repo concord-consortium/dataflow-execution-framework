@@ -161,7 +161,7 @@ class MathReteNodeFactory extends rete.Component {
     const n1 = inputs.num1.length ? inputs.num1[0] : node.data.num1;
     const n2 = inputs.num2 ? (inputs.num2.length ? inputs.num2[0] : node.data.num2) : 0;
 
-    const nodeOperationTypes = NodeOperationTypes.find(op => op.name === mathOperator);
+    const nodeOperationTypes = NodeOperationTypes.find(op => op.name.toLowerCase() === mathOperator.toLowerCase());
     if (nodeOperationTypes) {
       result = nodeOperationTypes.method(n1, n2);
     }
@@ -189,7 +189,7 @@ class TransformReteNodeFactory extends rete.Component {
     let result = 0;
     const n1 = inputs.num1.length ? inputs.num1[0] : node.data.num1;
 
-    const nodeOperationTypes = NodeOperationTypes.find(op => op.name === transformOperator);
+    const nodeOperationTypes = NodeOperationTypes.find(op => op.name.toLowerCase() === transformOperator.toLowerCase());
     if (nodeOperationTypes) {
       result = nodeOperationTypes.method(n1, 0);
    }
@@ -220,7 +220,7 @@ class LogicReteNodeFactory extends rete.Component {
     const n1 = inputs.num1.length ? inputs.num1[0] : node.data.num1;
     const n2 = inputs.num2.length ? inputs.num2[0] : node.data.num2;
 
-    const nodeOperationTypes = NodeOperationTypes.find(op => op.name === logicOperator);
+    const nodeOperationTypes = NodeOperationTypes.find(op => op.name.toLowerCase() === logicOperator.toLowerCase());
     if (nodeOperationTypes) {
       result = nodeOperationTypes.method(n1, n2);
     }
@@ -281,7 +281,7 @@ class GeneratorReteNodeFactory extends rete.Component {
     const period = Number(node.data.period) * 1000; // period is given in s, but we're passing in ms
     const amplitude = Number(node.data.amplitude);
 
-    const nodeGeneratorType = NodeGeneratorTypes.find(gt => gt.name === generatorType);
+    const nodeGeneratorType = NodeGeneratorTypes.find(gt => gt.name.toLowerCase() === generatorType.toLowerCase());
 
     let val = 0;
     if (nodeGeneratorType && period && amplitude) {
