@@ -20,6 +20,7 @@ async function recordProgram(program) {
         "nextRunTime": nextRunTime,
         "hubs": program.hubs,
         "sensors": program.sensors,
+        "relays": program.relays,
         "runInterval": program.runInterval,
         "program": JSON.stringify(program.program)
       }
