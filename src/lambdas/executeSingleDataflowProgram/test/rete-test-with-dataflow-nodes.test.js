@@ -27,6 +27,7 @@ describe('Engine', () => {
         new nodes.SensorReteNodeFactory(numSocket),
         new nodes.RelayReteNodeFactory(numSocket),
         new nodes.GeneratorReteNodeFactory(numSocket),
+        new nodes.TimerReteNodeFactory(numSocket),
         new nodes.DataStorageReteNodeFactory(numSocket)];
 
       components.map(c => {
@@ -122,9 +123,42 @@ describe('Engine', () => {
       const newTime = 2000;
       clock.tick(newTime);
 
-      const expectedVal = Math.round(Math.sin(newTime * Math.PI / (period * 1000)) * 1 * 100) / 100;
+      const expectedVal = Math.round(Math.sin(newTime * Math.PI / ((period * 1000) / 2)) * 1 * 100) / 100;
       await engine.process(sineProgram);
       assert.equal(engine.data.nodes["sine-wave"].outputData.num, expectedVal);
+    });
+
+    it('calculates the timer node correctly', async () => {
+      const timeOn = 10;
+      const timeOff = 20;
+      const timerProgram = {
+        id:"dataflow@0.1.0",
+        nodes: {
+          "my-timer": {
+            id: "my-timer",
+            data: {
+              timeOn,
+              timeOff
+            },
+            inputs: {},
+            outputs: {
+              num: {
+                connections: []
+              }
+            },
+            name: "Timer"
+          }
+        }
+      };
+
+      await engine.process(timerProgram);
+      assert.equal(engine.data.nodes["my-timer"].outputData.num, 1);
+
+      const newTime = 15;
+      clock.tick(newTime);
+
+      await engine.process(timerProgram);
+      assert.equal(engine.data.nodes["my-timer"].outputData.num, 1);
     });
   });
 });

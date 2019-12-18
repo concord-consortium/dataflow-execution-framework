@@ -124,6 +124,12 @@ const NodeGeneratorTypes = [
   },
 ];
 
+const NodeTimerInfo =
+{
+  name: "Timer",
+  method: (t, tOn, tOff) => t % (tOn + tOff) < tOn ? 1 : 0,
+};
+
 class NumberReteNodeFactory extends rete.Component {
   constructor(numSocket) {
     super("Number", numSocket);
@@ -293,6 +299,33 @@ class GeneratorReteNodeFactory extends rete.Component {
   }
 }
 
+class TimerReteNodeFactory extends rete.Component {
+  constructor(numSocket) {
+    super("Timer", numSocket);
+  }
+
+  builder(node) {
+    super.defaultBuilder(node);
+
+    const out = new Rete.Output("num", "Number", this.numSocket);
+    return node
+      .addOutput(out);
+  }
+
+  worker(node, inputs, outputs) {
+    const timeOn = Number(node.data.timeOn);
+    const timeOff = Number(node.data.timeOff);
+    let val = 0;
+    if (timeOn && timeOff) {
+      const timeOnIntervalUnitsInMs = timeOn * 1000;
+      const timeOffIntervalUnitsInMs = timeOff * 1000;
+      const time = Date.now();
+      val = NodeTimerInfo.method(time, timeOn * timeOnIntervalUnitsInMs, timeOff * timeOffIntervalUnitsInMs);
+    }
+    outputs.num = val;
+  }
+}
+
 class DataStorageReteNodeFactory extends rete.Component {
 
   constructor(numSocket) {
@@ -350,5 +383,6 @@ module.exports = {
   SensorReteNodeFactory,
   RelayReteNodeFactory,
   GeneratorReteNodeFactory,
+  TimerReteNodeFactory,
   DataStorageReteNodeFactory
 }
