@@ -339,7 +339,7 @@ class TimerReteNodeFactory extends rete.Component {
       const timeOnIntervalUnitsInMs = timeOn * 1000;
       const timeOffIntervalUnitsInMs = timeOff * 1000;
       const time = Date.now();
-      val = NodeTimerInfo.method(time, timeOn * timeOnIntervalUnitsInMs, timeOff * timeOffIntervalUnitsInMs);
+      val = NodeTimerInfo.method(time, timeOnIntervalUnitsInMs, timeOffIntervalUnitsInMs);
     }
     outputs.num = val;
   }
