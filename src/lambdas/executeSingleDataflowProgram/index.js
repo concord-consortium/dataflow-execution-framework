@@ -31,9 +31,15 @@ exports.handler = async (event) => {
 
   const programDef = typeof programJSON === "string" ? JSON.parse(programJSON) : programJSON;
 
+  for (let id in sensorData) {
+    if (isNaN(sensorData[id])) {
+      sensorData[id] = NaN;     // make explicit (we pass in string "NaN" when there is no sensor data)
+    }
+  }
+
   const result = await runDataflowProgram(programDef, sensorData);
 
-  console.log(result, programId);
+  // console.log(result, programId);
 
   if (!result.success) {
     console.error("Failed to run program: ", programId);
@@ -43,8 +49,8 @@ exports.handler = async (event) => {
     await sendMessagesToRelays(result.relayValues, event.program.hubs);
   }
 
-  console.log("result.savedNodeValues.length", result.savedNodeValues.length);
-  console.log("event.dataSaveTime", event.dataSaveTime);
+  // console.log("result.savedNodeValues.length", result.savedNodeValues.length);
+  // console.log("event.dataSaveTime", event.dataSaveTime);
   if (result.savedNodeValues.length && Date.now() > event.dataSaveTime) {
     await recordDataToTable(programId, result.savedNodeValues);
   }
@@ -53,7 +59,8 @@ exports.handler = async (event) => {
 async function recordDataToTable(programId, nodeValues) {
   return new Promise((resolve, reject) => {
     const blockIds = nodeValues.map(d => d.node);
-    const values = nodeValues.map(d => d.value * 1) // cast to ensure all numbers
+    const values = nodeValues.map(d => isNaN(d.value) ? null : d.value * 1) // cast to ensure all numbers
+    // console.log("recording ", values);
     const params = {
       TableName: "dataflow-data",
       Item: {
@@ -78,6 +85,8 @@ async function recordDataToTable(programId, nodeValues) {
 async function sendMessagesToRelays(relayValues, hubs) {
   const relayPromises = [];
   relayValues.forEach(rv => {
+    // don't send anything if relay is NaN
+    if (isNaN(rv.value)) return;
     // we should update the program to know which hub this belongs to.
     // until then, we broadcast this to all hubs associated with this program
     hubs.forEach(hubId => {

@@ -169,7 +169,13 @@ class MathReteNodeFactory extends rete.Component {
 
     const nodeOperationTypes = NodeOperationTypes.find(op => op.name.toLowerCase() === mathOperator.toLowerCase());
     if (nodeOperationTypes) {
-      result = nodeOperationTypes.method(n1, n2);
+      if (isNaN(n1) || isNaN(n2)) {
+        result = NaN;
+      } else {
+        // NaNs are for propogating lack of values. Actual math erros like
+        // divide-by-zero should output 0.
+        result = nodeOperationTypes.method(n1, n2) || 0;
+      }
     }
     node._value = result;
     outputs.num = result;
@@ -197,7 +203,11 @@ class TransformReteNodeFactory extends rete.Component {
 
     const nodeOperationTypes = NodeOperationTypes.find(op => op.name.toLowerCase() === transformOperator.toLowerCase());
     if (nodeOperationTypes) {
-      result = nodeOperationTypes.method(n1, 0);
+      if (isNaN(n1)) {
+        result = NaN;
+      } else {
+        result = nodeOperationTypes.method(n1, 0);
+      }
    }
 
     outputs.num = result;
@@ -228,7 +238,11 @@ class LogicReteNodeFactory extends rete.Component {
 
     const nodeOperationTypes = NodeOperationTypes.find(op => op.name.toLowerCase() === logicOperator.toLowerCase());
     if (nodeOperationTypes) {
-      result = nodeOperationTypes.method(n1, n2);
+      if (isNaN(n1) || isNaN(n2)) {
+        result = NaN;
+      } else {
+        result = nodeOperationTypes.method(n1, n2);
+      }
     }
 
     outputs.num = result;
@@ -264,7 +278,12 @@ class RelayReteNodeFactory extends rete.Component {
 
   worker(node, inputs, outputs) {
     const n1 = inputs.num1.length ? inputs.num1[0] : node.data.num1;
-    const result = n1 !== 0 ? 1 : 0;
+    let result;
+    if (isNaN(n1)) {
+      result = NaN;
+    } else {
+      result = n1 !== 0 ? 1 : 0;
+    }
 
     outputs.num = result;
   }

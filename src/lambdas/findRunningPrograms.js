@@ -7,6 +7,10 @@ const lambda = new AWS.Lambda({
 const iotAddress = "a2zxjwmcl3eyqd-ats.iot.us-east-1.amazonaws.com";
 const iotdata = new AWS.IotData({endpoint: iotAddress});
 
+const SENSOR_TIMEOUT = 10; // time skew in s between hub's last update time and sensor's
+                           // after which we consider this sensor's data stale
+const HUB_TIMEOUT = 10;    // time in s after which we consider entire hub stale
+
 exports.handler = async (event, context, callback) => {
   const result = {
     count: 0
@@ -33,13 +37,9 @@ exports.handler = async (event, context, callback) => {
       }
     }
 
-    console.log("all sensor data:");
-    console.log(JSON.stringify(allSensorData));
-
     // run all the programs, passing in the sensor data
 
     for (let i = 0; i < programs.length; i++){
-      console.log("running: " + programs[i].programId);
 
       // pass down next dataSaveTime, and update the time if necessary
       const dataSaveTime = programs[i].nextRunTime ? programs[i].nextRunTime : 0;
@@ -67,7 +67,6 @@ exports.handler = async (event, context, callback) => {
       });
     }
   }
-  console.log("done");
   callback(null, result);
 };
 
@@ -107,7 +106,26 @@ async function getShadowData(hubId) {
       } else {
         const result = JSON.parse(data.payload);
         if (result && result.state && result.state.reported) {
-          resolve(result.state.reported);
+          const hubData = result.state.reported;
+
+          // if we also have metadata, check for stale data
+          const metadata = result.metadata && result.metadata && result.metadata.reported;
+          if (hubId === "355aaff3-1b00-493a-b2ba-1df3673d7e73") console.log(result.metadata);
+          if (metadata) {
+            const now = Math.floor(Date.now() / 1000);
+            const hubUpdateTime = hubData.time;
+            const hubIsStale = now - hubUpdateTime > HUB_TIMEOUT;
+            for (let sensor in hubData) {
+              if (sensor === "time") continue;
+              if (hubIsStale ||
+                    (metadata[sensor] && metadata[sensor].timestamp
+                      && hubUpdateTime - metadata[sensor].timestamp > SENSOR_TIMEOUT)) {
+                if (hubId === "355aaff3-1b00-493a-b2ba-1df3673d7e73") console.log("  ", hubUpdateTime - metadata[sensor].timestamp, " is stale \n");
+                hubData[sensor] = "NaN";      // have to pass string, or JSON.stringify will turn NaN to undefined
+              }
+            }
+          }
+          resolve(hubData);
         }
       }
     });
