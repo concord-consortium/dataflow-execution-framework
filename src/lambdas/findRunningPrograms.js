@@ -33,7 +33,8 @@ exports.handler = async (event, context, callback) => {
       const sensorValues = await getShadowData(uniqueHubs[i]);
 
       for (const sensor of Object.keys(sensorValues)) {
-        allSensorData[sensor] = sensorValues[sensor];
+        if (!allSensorData[sensor] || isNaN(allSensorData[sensor]))
+          allSensorData[sensor] = sensorValues[sensor];
       }
     }
 
