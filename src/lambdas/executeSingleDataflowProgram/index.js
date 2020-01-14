@@ -26,7 +26,7 @@ exports.handler = async (event) => {
   const sensorData = event.sensorData || {};
 
   if (!programId || !programJSON) {
-    throw new Error("No program JSON or program id.");
+    throw new Error("No program JSON or program id. programId = ", event.program.programId);
   }
 
   const programDef = typeof programJSON === "string" ? JSON.parse(programJSON) : programJSON;
@@ -60,7 +60,7 @@ async function recordDataToTable(programId, nodeValues) {
   return new Promise((resolve, reject) => {
     const blockIds = nodeValues.map(d => d.node);
     const values = nodeValues.map(d => isNaN(d.value) ? null : d.value * 1) // cast to ensure all numbers
-    // console.log("recording ", values);
+    console.log("recording ", values);
     const params = {
       TableName: "dataflow-data",
       Item: {

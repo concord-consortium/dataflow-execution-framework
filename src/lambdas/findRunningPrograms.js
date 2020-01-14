@@ -110,7 +110,6 @@ async function getShadowData(hubId) {
 
           // if we also have metadata, check for stale data
           const metadata = result.metadata && result.metadata && result.metadata.reported;
-          if (hubId === "355aaff3-1b00-493a-b2ba-1df3673d7e73") console.log(result.metadata);
           if (metadata) {
             const now = Math.floor(Date.now() / 1000);
             const hubUpdateTime = hubData.time;
@@ -120,7 +119,6 @@ async function getShadowData(hubId) {
               if (hubIsStale ||
                     (metadata[sensor] && metadata[sensor].timestamp
                       && hubUpdateTime - metadata[sensor].timestamp > SENSOR_TIMEOUT)) {
-                if (hubId === "355aaff3-1b00-493a-b2ba-1df3673d7e73") console.log("  ", hubUpdateTime - metadata[sensor].timestamp, " is stale \n");
                 hubData[sensor] = "NaN";      // have to pass string, or JSON.stringify will turn NaN to undefined
               }
             }

@@ -3,7 +3,7 @@ const dynamoDocClient = new AWS.DynamoDB.DocumentClient();
 
 exports.handler = async (event) => {
   const program = event.program;
-  console.log(program);
+  console.log(JSON.stringify(program));
   await recordProgram(program);
   console.log("done");
 };
