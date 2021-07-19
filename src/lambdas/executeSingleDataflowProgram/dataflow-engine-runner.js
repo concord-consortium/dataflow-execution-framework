@@ -63,6 +63,7 @@ function getDataflowEngine() {
     new nodes.RelayReteNodeFactory(numSocket),
     new nodes.GeneratorReteNodeFactory(numSocket),
     new nodes.TimerReteNodeFactory(numSocket),
+    new nodes.LightBulbReteNodeFactory(numSocket),
     new nodes.DataStorageReteNodeFactory(numSocket)];
 
   components.forEach(c => engine.register(c));
