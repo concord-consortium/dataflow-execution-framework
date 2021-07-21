@@ -247,6 +247,34 @@ module.exports = {
         270
       ],
       "name": "Transform"
-    }
+    },
+    "lightbulb-id":{
+      "id": "lightbulb-id",
+      "data":{
+         "num1": 0,
+         "nodeValue": 0
+      },
+      "inputs":{
+         "num1":{
+            "connections":[
+               {
+                  "node": "generator-id",
+                  "output": "num",
+                  "data": {
+
+                  }
+               }
+            ]
+         }
+      },
+      "outputs":{
+
+      },
+      "position": [
+        280,
+        280
+      ],
+      "name":"Light Bulb"
+   }
   }
 };

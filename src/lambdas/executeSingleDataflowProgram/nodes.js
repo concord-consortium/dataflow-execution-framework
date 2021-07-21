@@ -345,6 +345,30 @@ class TimerReteNodeFactory extends rete.Component {
   }
 }
 
+class LightBulbReteNodeFactory extends rete.Component {
+  constructor(numSocket) {
+    super("Light Bulb", numSocket);
+  }
+
+  builder(node) {
+    const inp1 = new Rete.Input("num1", "Number", this.numSocket);
+    return node
+      .addInput(inp1);
+  }
+
+  worker(node, inputs, outputs) {
+    const n1 = inputs.num1.length ? inputs.num1[0] : node.data.num1;
+    let result;
+    if (isNaN(n1)) {
+      result = NaN;
+    } else {
+      result = n1 !== 0 ? 1 : 0;
+    }
+
+    outputs.num = result;
+  }
+}
+
 class DataStorageReteNodeFactory extends rete.Component {
 
   constructor(numSocket) {
@@ -403,5 +427,6 @@ module.exports = {
   RelayReteNodeFactory,
   GeneratorReteNodeFactory,
   TimerReteNodeFactory,
+  LightBulbReteNodeFactory,
   DataStorageReteNodeFactory
 }
