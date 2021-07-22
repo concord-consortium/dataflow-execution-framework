@@ -2,6 +2,51 @@ var polyfill = require('@babel/polyfill');
 var rete = require('rete');
 var nodes = require('./nodes');
 
+const nodeVirtualSensorMethods = [
+  {
+    type: "temperature",
+    virtualValueMethod: (t) => {
+      const vals = [20, 20, 20, 21, 21, 21, 20, 20, 21, 21, 21, 21, 21, 21, 21];
+      return vals[t % vals.length];
+    }
+  },
+  {
+    type: "humidity",
+    virtualValueMethod: (t) => {
+      const vals = [60, 60, 60, 61, 61, 61, 62, 62, 62, 61, 61, 61, 61, 61, 61, 61];
+      return vals[t % vals.length];
+    }
+  },
+  {
+    type: "CO2",
+    virtualValueMethod: (t) => {
+      const vals = [409, 409, 410, 410, 410, 410, 411, 411, 410, 410, 410, 409, 409, 411, 411];
+      return vals[t % vals.length];
+    }
+  },
+  {
+    type: "O2",
+    virtualValueMethod: (t) => {
+      const vals = [21, 21, 21, 22, 22, 22, 21, 21, 21, 21, 22, 22, 22, 22, 22];
+      return vals[t % vals.length];
+    }
+  },
+  {
+    type: "light",
+    virtualValueMethod: (t) => {
+      const vals = [9000, 9000, 9001, 9001, 9002, 9002, 9002, 9001, 9001, 9001, 9000, 9001, 9001, 9002, 9002];
+      return vals[t % vals.length];
+    }
+  },
+  {
+    type: "particulates",
+    virtualValueMethod: (t) => {
+      const vals = [10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11];
+      return vals[t % vals.length];
+    }
+  }
+];
+
 /**
  * Takes a program JSON and an object representing sensor values, and returns a set
  * blocks to save, with their values, and relay values to set.
@@ -41,8 +86,19 @@ module.exports = async function(programDef, sensorData) {
 function setSensorValues(programDef, sensorData) {
   for (const id in programDef.nodes) {
     const node = programDef.nodes[id];
-    if (node.name === "Sensor" && node.data.sensor && sensorData[node.data.sensor]) {
-      node.data.nodeValue = sensorData[node.data.sensor];
+    if (node.name === "Sensor" && node.data.sensor) {
+      if (!node.data.virtual) {
+        if (sensorData[node.data.sensor]) {
+          node.data.nodeValue = sensorData[node.data.sensor];
+        }
+      } else {
+        const virtualSensor = nodeVirtualSensorMethods.find((s) => s.type === node.data.type);
+        if (virtualSensor) {
+          const time = Math.floor(Date.now() / 1000);
+          const val = virtualSensor.virtualValueMethod(time);
+          node.data.nodeValue = val;
+        }
+      }
     }
   }
 }
