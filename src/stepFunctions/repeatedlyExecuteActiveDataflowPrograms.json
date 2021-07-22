@@ -1,0 +1,234 @@
+{
+  "StartAt": "Add step function to DB if none running",
+  "States": {
+    "Add step function to DB if none running": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:816253370536:function:checkIfStepFunctionIsExecuting:$LATEST"
+      },
+      "Next": "Initialize step count",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "End"
+        }
+      ]
+    },
+    "Initialize step count": {
+      "Type": "Pass",
+      "Result": {
+          "index": 0,
+          "step": 18,
+          "max": 10000
+      },
+      "ResultPath": "$.steps",
+      "Next": "Reset error count"
+    },
+    "Reset error count": {
+      "Type": "Pass",
+      "Result": {
+          "index": 0,
+          "step": 1,
+          "max": 5
+      },
+      "ResultPath": "$.errors",
+      "Next": "Execute all active programs"
+    },
+    "Execute all active programs": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:816253370536:function:findRunningPrograms:$LATEST"
+      },
+      "Next": "Remaining active programs?",
+      "ResultPath": "$.results",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.executeAllActiveProgramsError",
+          "Next": "Increment error count"
+        }
+      ]
+    },
+    "Remaining active programs?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.results.Payload.count",
+          "NumericEquals": 0,
+          "Next": "Delete stale programs from DB"
+        }
+      ],
+      "Default": "Increment step count"
+    },
+    "Increment step count": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:816253370536:function:Iterator",
+      "Parameters": {
+        "iterator": {
+          "index.$": "$.steps.index",
+          "step.$": "$.steps.step",
+          "max.$": "$.steps.max"
+        }
+      },
+      "ResultPath": "$.steps",
+      "Next": "Is count reached?",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.incrementStepCountError",
+          "Next": "Increment error count"
+        }
+      ]
+    },
+    "Is count reached?": {
+      "Type": "Choice",
+      "Choices": [
+          {
+              "Variable": "$.steps.continue",
+              "BooleanEquals": true,
+              "Next": "Reset error count"
+          }
+      ],
+      "Default": "Remove step function from DB and restart"
+    },
+    "Delete stale programs from DB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:816253370536:function:deleteAllStalePrograms:$LATEST"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [ "States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 5,
+          "BackoffRate": 1.5
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [ "States.All"],
+          "ResultPath": "$.deleteStaleProgramsError",
+          "Next": "Remove step function from DB"
+        }
+      ],
+      "Next": "Remove step function from DB"
+    },
+    "Increment error count": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:816253370536:function:Iterator",
+      "Parameters": {
+        "iterator": {
+          "index.$": "$.errors.index",
+          "step.$": "$.errors.step",
+          "max.$": "$.errors.max"
+        }
+      },
+      "ResultPath": "$.errors",
+      "Retry": [
+        {
+          "ErrorEquals": [ "States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 5,
+          "BackoffRate": 1.5
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [ "States.All"],
+          "ResultPath": "$.incrementErrorCountError",
+          "Next": "Remove step function from DB"
+        }
+      ],
+      "Next": "Is error max reached?"
+    },
+    "Is error max reached?": {
+      "Type": "Choice",
+      "Choices": [
+          {
+              "Variable": "$.errors.continue",
+              "BooleanEquals": true,
+              "Next": "Execute all active programs"
+          }
+      ],
+      "Default": "Remove step function from DB"
+    },
+    "Remove step function from DB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:deleteItem",
+      "Parameters": {
+        "TableName": "dataflow-programs",
+        "Key": {
+          "active": {
+            "N": "2"
+          },
+          "endTime": {
+            "N": "0"
+          }
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [ "States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 5,
+          "BackoffRate": 1.5
+        }
+      ],
+      "Next": "End"
+    },
+    "Remove step function from DB and restart": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:deleteItem",
+      "Parameters": {
+        "TableName": "dataflow-programs",
+        "Key": {
+          "active": {
+            "N": "2"
+          },
+          "endTime": {
+            "N": "0"
+          }
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [ "States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 5,
+          "BackoffRate": 1.5
+        }
+      ],
+      "ResultPath": "$.throwAway",
+      "Next": "Restart"
+    },
+    "Restart": {
+      "Type": "Task",
+      "Parameters": {
+        "StateMachineArn": "arn:aws:states:us-east-1:816253370536:stateMachine:repeatedlyExecuteActiveDataflowPrograms"
+      },
+      "Resource": "arn:aws:lambda:us-east-1:816253370536:function:restartStepFunction",
+      "Retry": [
+        {
+          "ErrorEquals": [ "States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 5,
+          "BackoffRate": 1.5
+        }
+      ],
+      "Next": "End"
+    },
+    "End": {
+      "Type": "Pass",
+      "End": true
+    }
+  }
+}
