@@ -9,12 +9,12 @@
     "postbuild": "npm install"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.4.4",
-    "rete": "^1.4.1-rc.2"
+    "@babel/polyfill": "^7.12.1",
+    "rete": "^1.4.5"
   },
   "devDependencies": {
     "jest": "^27.0.6",
     "lolex": "^4.2.0",
-    "mocha": "^6.2.0"
+    "mocha": "^6.2.3"
   }
 }
